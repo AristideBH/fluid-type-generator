@@ -6,13 +6,13 @@
 
 	let previewText = $state('The quick brown fox jumps over the lazy dog');
 
-	let viMin = $state(DEFAULTS.viMin);
-	let viMax = $state(DEFAULTS.viMax);
-	let baseMin = $state(DEFAULTS.baseMin);
-	let baseMax = $state(DEFAULTS.baseMax);
-	let rMin = $state(DEFAULTS.rMin);
-	let rMax = $state(DEFAULTS.rMax);
-	let precision = $state(DEFAULTS.precision);
+	let viMin = $state(DEFAULTS.viMin as number);
+	let viMax = $state(DEFAULTS.viMax as number);
+	let baseMin = $state(DEFAULTS.baseMin as number);
+	let baseMax = $state(DEFAULTS.baseMax as number);
+	let rMin = $state(DEFAULTS.rMin as number);
+	let rMax = $state(DEFAULTS.rMax as number);
+	let precision = $state(DEFAULTS.precision as number);
 
 	let presets = $state<Preset[]>([
 		{ label: '2xs', step: -3 },
@@ -69,45 +69,24 @@
 		<div class="px-4 pb-4">
 			<!-- controls with number + range -->
 			<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>Base MIN (px)</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={baseMin}
-							step="0.01"
-							min="8"
-							max="48"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={baseMin} step="0.01" min="8" max="48" />
 						<input type="range" bind:value={baseMin} min="8" max="48" step="0.1" class="flex-1" />
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>Base MAX (px)</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={baseMax}
-							step="0.01"
-							min="12"
-							max="64"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={baseMax} step="0.01" min="12" max="64" />
 						<input type="range" bind:value={baseMax} min="12" max="64" step="0.1" class="flex-1" />
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>MIN ratio</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={rMin}
-							step="0.001"
-							min="1.05"
-							max="1.333"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={rMin} step="0.001" min="1.05" max="1.333" />
 						<input
 							type="range"
 							bind:value={rMin}
@@ -118,17 +97,10 @@
 						/>
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>MAX ratio</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={rMax}
-							step="0.001"
-							min="1.05"
-							max="1.5"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={rMax} step="0.001" min="1.05" max="1.5" />
 						<input
 							type="range"
 							bind:value={rMax}
@@ -139,31 +111,17 @@
 						/>
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>vi lower</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={viMin}
-							step="0.01"
-							min="0"
-							max={viMax}
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={viMin} step="0.01" min="0" max={viMax} />
 						<input type="range" bind:value={viMin} min="0" max={viMax} step="0.01" class="flex-1" />
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>vi upper</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={viMax}
-							step="0.01"
-							min={viMin}
-							max="30"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={viMax} step="0.01" min={viMin} max="30" />
 						<input
 							type="range"
 							bind:value={viMax}
@@ -174,17 +132,10 @@
 						/>
 					</div>
 				</label>
-				<label class="grid gap-1 text-sm text-neutral-700">
+				<label>
 					<span>Decimals</span>
-					<div class="flex items-center gap-2">
-						<input
-							type="number"
-							bind:value={precision}
-							min="0"
-							max="6"
-							step="1"
-							class="w-28 rounded-lg border border-neutral-300 px-2.5 py-2"
-						/>
+					<div>
+						<input type="number" bind:value={precision} min="0" max="6" step="1" />
 						<input type="range" bind:value={precision} min="0" max="6" step="1" class="flex-1" />
 					</div>
 				</label>
@@ -192,38 +143,13 @@
 
 			<!-- actions line -->
 			<div class="mt-4 flex flex-wrap gap-2">
-				<button
-					class="rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2"
-					onclick={() => copyJSON(fontSizeMap)}>Copy JSON</button
-				>
-				<button
-					class="rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2"
-					onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</button
-				>
-				<button
-					class="rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2"
-					onclick={() => downloadJSON(fontSizeMap)}>Download JSON</button
-				>
-				<button
-					class="rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2"
-					onclick={() => downloadTailwindJS(fontSizeMap)}>Download JS</button
-				>
-				<button
-					class="ml-auto rounded-lg border border-red-500 px-3 py-2 text-red-600"
-					onclick={resetParams}>Reset parameters</button
-				>
-			</div>
-
-			<!-- Notes -->
-			<div class="mt-4">
-				<h3 class="text-lg font-semibold">Notes</h3>
-				<ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700">
-					<li>
-						<kbd class="rounded bg-neutral-900 px-1 py-0.5 text-[11px] text-white">vi</kbd> controls
-						fluidity along the inline axis.
-					</li>
-					<li>Sliders for quick tweaks, numbers for precision.</li>
-				</ul>
+				<button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</button>
+				<button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</button>
+				<button onclick={() => downloadJSON(fontSizeMap)}>Download JSON</button>
+				<button onclick={() => downloadTailwindJS(fontSizeMap)}>Download JS</button>
+				<button class="ml-auto border-red-500 text-red-600" onclick={resetParams}>
+					Reset parameters
+				</button>
 			</div>
 		</div>
 	</details>
@@ -238,18 +164,8 @@
 			<div class="flex flex-wrap items-center gap-2">
 				<div class="text-sm text-neutral-600">Add/remove sizes. Labels & steps are automatic.</div>
 				<div class="ml-auto flex gap-2">
-					<button
-						class="rounded-lg border border-blue-600 bg-blue-600 px-3 py-2 text-white"
-						onclick={() => (presets = addSmallerPreset(presets))}
-					>
-						Add smaller
-					</button>
-					<button
-						class="rounded-lg border border-blue-600 bg-blue-600 px-3 py-2 text-white"
-						onclick={() => (presets = addLargerPreset(presets))}
-					>
-						Add larger
-					</button>
+					<button onclick={() => (presets = addSmallerPreset(presets))}> Add smaller </button>
+					<button onclick={() => (presets = addLargerPreset(presets))}> Add larger </button>
 				</div>
 			</div>
 
@@ -257,34 +173,32 @@
 				<table class="w-full border-collapse">
 					<thead>
 						<tr class="border-b border-neutral-200">
-							<th class="px-2 py-2 text-left font-semibold text-neutral-700">Label</th>
-							<th class="px-2 py-2 text-left font-semibold text-neutral-700">MIN (px)</th>
-							<th class="px-2 py-2 text-left font-semibold text-neutral-700">MAX (px)</th>
-							<th class="px-2 py-2 text-left font-semibold text-neutral-700">clamp()</th>
-							<th class="px-2 py-2"></th>
+							<th>Label</th>
+							<th>MIN (px)</th>
+							<th>MAX (px)</th>
+							<th>clamp()</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each presets as p (p.label)}
 							{@const L = line(p.step, params)}
 							<tr class="border-b border-neutral-100">
-								<td class="px-2 py-2">
-									<span
-										class="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-sm"
-										>{p.label}</span
-									>
+								<td>
+									<span class="badge">
+										{p.label}
+									</span>
 								</td>
-								<td class="px-2 py-2 tabular-nums">{fmt(L.min, precision)}</td>
-								<td class="px-2 py-2 tabular-nums">{fmt(L.max, precision)}</td>
-								<td class="overflow-x-auto px-2 py-2 font-mono text-sm whitespace-nowrap"
-									>{clampString(p.step, params)}</td
-								>
-								<td class="px-2 py-2">
+								<td class="tabular-nums">{fmt(L.min, precision)}</td>
+								<td class="tabular-nums">{fmt(L.max, precision)}</td>
+								<td class="overflow-x-auto font-mono text-sm whitespace-nowrap">
+									{clampString(p.step, params)}
+								</td>
+								<td>
 									{#if p.label !== 'base'}
-										<button
-											class="rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-1.5"
-											onclick={() => (presets = removePreset(presets, p.label))}>Remove</button
-										>
+										<button onclick={() => (presets = removePreset(presets, p.label))}>
+											Remove
+										</button>
 									{/if}
 								</td>
 							</tr>
@@ -318,12 +232,8 @@
 					<div class="rounded-xl border border-dashed border-neutral-200 p-3">
 						<div class="grid grid-cols-[auto_1fr] items-end gap-3">
 							<div class="w-[5ch]">
-								<span
-									class="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs"
-									>{p.label}</span
-								>
+								<span class="badge">{p.label}</span>
 							</div>
-							<!-- IMPORTANT: min-w-0 keeps children from overflowing the grid cell -->
 							<div class="min-w-0">
 								<div class="max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap">
 									<div
@@ -344,7 +254,9 @@
 	</details>
 </div>
 
-<style>
+<style lang="postcss">
+	@reference "tailwindcss";
+
 	/* minimal CSS to enhance <details> (accordion) */
 	details {
 		border: 1px solid #e5e7eb;
@@ -370,6 +282,29 @@
 		transform: rotate(90deg);
 	}
 	button {
-		cursor: pointer;
+		@apply cursor-pointer rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2;
+	}
+
+	label {
+		@apply grid gap-1 text-sm text-neutral-700;
+
+		& > div {
+			@apply flex items-center gap-2;
+
+			& > input[type='number'] {
+				@apply w-28 rounded-lg border border-neutral-300 px-2.5 py-2;
+			}
+		}
+	}
+
+	thead th {
+		@apply px-2 py-2 text-left font-semibold text-neutral-700;
+	}
+	tbody td {
+		@apply px-2 py-2;
+	}
+
+	span.badge {
+		@apply rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs;
 	}
 </style>
