@@ -6,13 +6,23 @@
 
 	let previewText = $state('The quick brown fox jumps over the lazy dog');
 
-	let viMin = $state(DEFAULTS.viMin as number);
-	let viMax = $state(DEFAULTS.viMax as number);
-	let baseMin = $state(DEFAULTS.baseMin as number);
-	let baseMax = $state(DEFAULTS.baseMax as number);
-	let rMin = $state(DEFAULTS.rMin as number);
-	let rMax = $state(DEFAULTS.rMax as number);
-	let precision = $state(DEFAULTS.precision as number);
+	let viMin = $state(DEFAULTS.viMin);
+	let viMax = $state(DEFAULTS.viMax);
+	let baseMin = $state(DEFAULTS.baseMin);
+	let baseMax = $state(DEFAULTS.baseMax);
+	let rMin = $state(DEFAULTS.rMin);
+	let rMax = $state(DEFAULTS.rMax);
+	let precision = $state(DEFAULTS.precision);
+
+	const params: ScaleParams = $derived({
+		viMin,
+		viMax,
+		baseMin,
+		baseMax,
+		rMin,
+		rMax,
+		precision
+	});
 
 	let presets = $state<Preset[]>([
 		{ label: '2xs', step: -3 },
@@ -27,16 +37,6 @@
 		{ label: '4xl', step: 6 },
 		{ label: '5xl', step: 7 }
 	]);
-
-	const params: ScaleParams = $derived({
-		viMin,
-		viMax,
-		baseMin,
-		baseMax,
-		rMin,
-		rMax,
-		precision
-	});
 
 	const fontSizeMap = $derived(
 		Object.fromEntries(presets.map((p) => [p.label, clampString(p.step, params)]))
@@ -92,7 +92,7 @@
 							bind:value={rMin}
 							min="1.05"
 							max="1.333"
-							step="0.001"
+							step="0.01"
 							class="flex-1"
 						/>
 					</div>
@@ -101,14 +101,7 @@
 					<span>MAX ratio</span>
 					<div>
 						<input type="number" bind:value={rMax} step="0.001" min="1.05" max="1.5" />
-						<input
-							type="range"
-							bind:value={rMax}
-							min="1.05"
-							max="1.5"
-							step="0.001"
-							class="flex-1"
-						/>
+						<input type="range" bind:value={rMax} min="1.05" max="1.5" step="0.01" class="flex-1" />
 					</div>
 				</label>
 				<label>
@@ -227,29 +220,24 @@
 				/>
 			</div>
 
-			<div class="mt-3 grid grid-cols-1 gap-3">
+			<ul class="mt-3 grid grid-cols-1 gap-3">
 				{#each presets as p (p.label)}
-					<div class="rounded-xl border border-dashed border-neutral-200 p-3">
-						<div class="grid grid-cols-[auto_1fr] items-end gap-3">
+					<li>
+						<div class="grid grid-cols-[auto_1fr] items-baseline gap-3">
 							<div class="w-[5ch]">
 								<span class="badge">{p.label}</span>
 							</div>
-							<div class="min-w-0">
-								<div class="max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap">
-									<div
-										style={`font-size: ${clampString(p.step, params)}; line-height:1.5; font-weight:600;`}
-									>
-										{previewText}
-									</div>
-								</div>
-								<div class="mt-1 font-mono text-[11px] whitespace-nowrap text-neutral-500">
-									{clampString(p.step, params)}
-								</div>
+							<div class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden whitespace-nowrap">
+								<p
+									style={`font-size: ${clampString(p.step, params)}; line-height:1.5; font-weight:600;`}
+								>
+									{previewText}
+								</p>
 							</div>
 						</div>
-					</div>
+					</li>
 				{/each}
-			</div>
+			</ul>
 		</div>
 	</details>
 </div>
@@ -259,28 +247,24 @@
 
 	/* minimal CSS to enhance <details> (accordion) */
 	details {
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
-		background: #fff;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+		@apply rounded-2xl border border-neutral-200 bg-white;
 	}
 	summary {
-		list-style: none;
-		cursor: pointer;
-		user-select: none;
+		@apply cursor-pointer list-none select-none;
+
+		&::-webkit-details-marker {
+			@apply hidden;
+		}
+
+		.chev::after {
+			@apply ml-2 inline-block transition-transform duration-150 ease-in-out content-['▸'];
+		}
 	}
-	summary::-webkit-details-marker {
-		display: none;
-	}
-	.chev::after {
-		content: '▸';
-		transition: transform 0.15s ease;
-		display: inline-block;
-		margin-left: 0.5rem;
-	}
+
 	details[open] .chev::after {
-		transform: rotate(90deg);
+		@apply rotate-90;
 	}
+
 	button {
 		@apply cursor-pointer rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2;
 	}

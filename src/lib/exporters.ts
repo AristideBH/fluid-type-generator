@@ -1,6 +1,7 @@
 // exporters.ts
 export type FontSizeMap = { [label: string]: string }; // <- no generics
 
+// ---- Copy functions ----
 function copyText(text: string) {
     navigator.clipboard?.writeText(text);
 }
@@ -16,6 +17,7 @@ fontSize: ${JSON.stringify(map, null, 2)},`;
     copyText(body);
 }
 
+// ---- Download functions ----
 function download(filename: string, content: string, type = 'application/json') {
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);

@@ -9,4 +9,4 @@ export const DEFAULTS = {
     rMin: 1.125,
     rMax: 1.25,
     precision: 2,
-} as const;
+};

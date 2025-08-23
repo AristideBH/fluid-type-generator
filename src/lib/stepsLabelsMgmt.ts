@@ -2,6 +2,7 @@ import type { Preset } from './presets';
 
 type BumpFn = (label: string) => string;
 
+// ---- Helpers to manage preset labels ----
 function nextLargerLabel(presets: Preset[]): string {
     const ns = presets.map(p => {
         if (p.label === 'xl') return 1;
@@ -43,6 +44,7 @@ const bumpXS: BumpFn = (l) => {
     return m ? `${Number(m[1]) + 1}xs` : 'xs';
 };
 
+// ---- Helpers to manage preset ----
 export function addLargerPreset(presets: Preset[]): Preset[] {
     const label = ensureUniqueLabel(nextLargerLabel(presets), bumpXL, presets);
     const step = Math.max(...presets.map(p => p.step)) + 1;
