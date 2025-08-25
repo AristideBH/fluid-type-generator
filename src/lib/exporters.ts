@@ -3,7 +3,7 @@ export type FontSizeMap = { [label: string]: string };
 import { toast } from "svelte-sonner";
 
 // ---- Copy functions ----
-function copyText(text: string) {
+export function copyText(text: string) {
     navigator.clipboard?.writeText(text);
     toast.success('Copied to clipboard');
 }

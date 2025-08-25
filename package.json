@@ -49,6 +49,7 @@
 		]
 	},
 	"dependencies": {
+		"@arisbh/coulisse": "^0.0.0",
 		"mode-watcher": "^1.1.0"
 	}
 }
