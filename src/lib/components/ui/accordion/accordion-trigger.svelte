@@ -5,7 +5,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
-		level = 3,
+		level = 2,
 		children,
 		...restProps
 	}: WithoutChild<AccordionPrimitive.TriggerProps> & {

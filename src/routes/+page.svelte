@@ -178,13 +178,13 @@
 
 			<!-- actions line -->
 			<div class="mt-8 flex flex-wrap gap-2">
-				<Button onclick={() => copyCSSClasses(fontSizeMap)}>Copy CSS</Button>
-				<Button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>
-				<Button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</Button>
-				<Button variant="destructive" class="ml-auto " onclick={resetParams}>
+				<Button variant="destructive" class="ms-auto" onclick={resetParams}>
 					<RotateCcw />
 					Reset
 				</Button>
+				<Button onclick={() => copyCSSClasses(fontSizeMap)}>Copy CSS</Button>
+				<Button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>
+				<Button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</Button>
 			</div>
 		</Accordion.Content>
 	</Accordion.Item>
