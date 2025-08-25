@@ -13,6 +13,7 @@
 	import { syncScroll } from '@/utils';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 
 	let previewText = $state('A mad boxer shot a quick, gloved jab to the jaw of his dizzy opponent');
 
@@ -63,6 +64,7 @@
 	}
 
 	let scrollDivs: HTMLDivElement[] = [];
+	let areDetailsShown = $state(false);
 
 	$effect(() => {
 		if (viMin > viMax) viMin = viMax;
@@ -70,53 +72,6 @@
 		if (baseMin > baseMax) baseMin = baseMax;
 	});
 </script>
-
-{#snippet previewPreset(preset: Preset, index: number)}
-	{@const { label, step } = preset}
-	{@const fontSize = clampString(step, params)}
-	{@const L = line(step, params)}
-	<li class="group rounded-xl border border-dashed p-2">
-		<div class="grid items-baseline gap-3">
-			<div class="relative inline-flex items-baseline gap-3">
-				<Badge variant="secondary">{label}</Badge>
-				{#if label !== 'base'}
-					<Button
-						variant="secondary"
-						class="absolute top-0 right-0 hidden size-7 group-hover:flex"
-						size="icon"
-						onclick={() => (presets = removePreset(presets, label))}
-						title="Remove {label} preset"
-					>
-						<Trash2 />
-					</Button>
-				{/if}
-				<p class="font-mono text-xs text-muted-foreground/50">
-					<span>min : {fmt(L.min, precision)}px</span> |
-					<span>max : {fmt(L.max, precision)}px</span> |
-					<button
-						onclick={() => copyText(clampString(step, params))}
-						class="cursor-copy select-all hover:text-foreground"
-					>
-						{clampString(step, params)}
-					</button>
-				</p>
-			</div>
-			<div
-				class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-[0.2em] whitespace-nowrap"
-				style:font-size={fontSize}
-				bind:this={scrollDivs[index]}
-				onscroll={() => syncScroll(index, scrollDivs)}
-			>
-				<div
-					class="py-[0.1em] font-semibold"
-					style="text-box-edge: cap alphabetic; text-box-trim: trim-both; font-size:inherit;"
-				>
-					{previewText}
-				</div>
-			</div>
-		</div>
-	</li>
-{/snippet}
 
 <section class="my-10">
 	<h1 class="text-3xl leading-tight font-extrabold tracking-tighter">Fluid Type Scale Generator</h1>
@@ -178,7 +133,7 @@
 
 			<!-- actions line -->
 			<div class="mt-8 flex flex-wrap gap-2">
-				<Button variant="destructive" class="ms-auto" onclick={resetParams}>
+				<Button variant="destructive" class="me-auto" onclick={resetParams}>
 					<RotateCcw />
 					Reset
 				</Button>
@@ -192,7 +147,7 @@
 	<Accordion.Item value="preview">
 		<Accordion.Trigger>Preview</Accordion.Trigger>
 		<Accordion.Content>
-			<div class="flex items-end gap-4">
+			<div class="flex items-start gap-4">
 				<div class="flex w-full flex-col gap-2">
 					<Label for="previewText">Preview text</Label>
 					<Input
@@ -202,6 +157,10 @@
 						class="w-full"
 						id="previewText"
 					/>
+					<div class="mt-3 flex items-center gap-3">
+						<Checkbox id="showSizeDetails" bind:checked={areDetailsShown} />
+						<Label for="showSizeDetails">Show sizes details</Label>
+					</div>
 				</div>
 				<div class="flex flex-col gap-2">
 					<Label>Manage presets</Label>
@@ -216,9 +175,63 @@
 				</div>
 			</div>
 
-			<ul class="ms-0 mt-6 grid list-none gap-y-2">
+			<ul class="ms-0 mt-6 grid list-none gap-y-2 {!areDetailsShown ? 'gap-y-5' : ''}">
 				{#each presets as preset, index}
-					{@render previewPreset(preset, index)}
+					{@const { label, step } = preset}
+					{@const fontSize = clampString(step, params)}
+					{@const L = line(step, params)}
+					<li
+						class="group relative rounded-xl border-dashed transition-all
+							{areDetailsShown ? ' border  p-2' : 'border-transparent'}"
+					>
+						<div
+							class="grid items-baseline gap-3
+								{!areDetailsShown ? 'grid auto-cols-[auto_1fr] grid-flow-col' : ''}"
+						>
+							{#if label !== 'base'}
+								<Button
+									variant="secondary"
+									class="absolute top-2 right-2 hidden size-7 group-hover:flex"
+									size="icon"
+									onclick={() => (presets = removePreset(presets, label))}
+									title="Remove {label} preset"
+								>
+									<Trash2 class="cursor-pointer" />
+								</Button>
+							{/if}
+							<div
+								class="relative inline-flex items-end gap-3 transition-all
+									{!areDetailsShown ? 'w-[6ch]' : ''} "
+							>
+								<Badge variant="secondary">{label}</Badge>
+								{#if areDetailsShown}
+									<p class="font-mono text-xs text-muted-foreground/50">
+										<span>min : {fmt(L.min, precision)}px</span> |
+										<span>max : {fmt(L.max, precision)}px</span> |
+										<button
+											onclick={() => copyText(clampString(step, params))}
+											class="cursor-copy select-all hover:text-foreground"
+										>
+											{clampString(step, params)}
+										</button>
+									</p>
+								{/if}
+							</div>
+							<div
+								class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-[0.2em] whitespace-nowrap"
+								style:font-size={fontSize}
+								bind:this={scrollDivs[index]}
+								onscroll={() => syncScroll(index, scrollDivs)}
+							>
+								<div
+									class="py-[0.1em] font-semibold"
+									style="text-box-edge: cap alphabetic; text-box-trim: trim-both; font-size:inherit;"
+								>
+									{previewText}
+								</div>
+							</div>
+						</div>
+					</li>
 				{/each}
 			</ul>
 		</Accordion.Content>
