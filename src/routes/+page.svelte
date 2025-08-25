@@ -1,8 +1,16 @@
 <script lang="ts">
-	import { DEFAULTS, type Preset } from '$lib/presets';
-	import { line, fmt, clampString, type ScaleParams } from '$lib/mathHelpers';
-	import { addLargerPreset, addSmallerPreset, removePreset } from '$lib/stepsLabelsMgmt';
-	import { copyJSON, copyTailwindSnippet, downloadJSON, downloadTailwindJS } from '$lib/exporters';
+	import { DEFAULTS, type Preset } from '@/presets';
+	import { line, fmt, clampString, type ScaleParams } from '@/mathHelpers';
+	import { addLargerPreset, addSmallerPreset, removePreset } from '@/stepsLabelsMgmt';
+	import { copyJSON, copyTailwindSnippet, downloadJSON, downloadTailwindJS } from '@/exporters';
+
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Slider } from '$lib/components/ui/slider/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	import * as Accordion from '$lib/components/ui/accordion/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 
 	let previewText = $state('The quick brown fox jumps over the lazy dog');
 
@@ -59,164 +67,85 @@
 	});
 </script>
 
-<div class="mx-auto grid max-w-[1100px] gap-3 p-5">
+<Accordion.Root type="multiple" value={['parameters', 'presets']} class="grid gap-4">
 	<!-- Fluid Type Scale -->
-	<details open>
-		<summary class="flex items-center justify-between px-4 py-3">
-			<h2 class="text-xl font-semibold">Fluid Type Scale</h2>
-			<span class="chev text-neutral-500"></span>
-		</summary>
-		<div class="px-4 pb-4">
+	<Accordion.Item value="parameters">
+		<Accordion.Trigger>Fluid Type Scale</Accordion.Trigger>
+		<Accordion.Content>
 			<!-- controls with number + range -->
 			<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<label>
-					<span>Base MIN (px)</span>
+					<Label>Base MIN (px)</Label>
 					<div>
-						<input type="number" bind:value={baseMin} step="0.01" min="8" max="48" />
-						<input type="range" bind:value={baseMin} min="8" max="48" step="0.1" class="flex-1" />
+						<Input type="number" bind:value={baseMin} step="0.01" min="8" max="48" />
+						<Slider type="single" bind:value={baseMin} min={8} max={48} step={0.1} />
 					</div>
 				</label>
 				<label>
-					<span>Base MAX (px)</span>
+					<Label>Base MAX (px)</Label>
 					<div>
-						<input type="number" bind:value={baseMax} step="0.01" min="12" max="64" />
-						<input type="range" bind:value={baseMax} min="12" max="64" step="0.1" class="flex-1" />
+						<Input type="number" bind:value={baseMax} step="0.01" min="12" max="64" />
+						<Slider type="single" bind:value={baseMax} min={12} max={64} step={0.1} />
 					</div>
 				</label>
 				<label>
-					<span>MIN ratio</span>
+					<Label>MIN ratio</Label>
 					<div>
-						<input type="number" bind:value={rMin} step="0.001" min="1.05" max="1.333" />
-						<input
-							type="range"
-							bind:value={rMin}
-							min="1.05"
-							max="1.333"
-							step="0.01"
-							class="flex-1"
-						/>
+						<Input type="number" bind:value={rMin} step="0.001" min="1.05" max="1.333" />
+						<Slider type="single" bind:value={rMin} min={1.05} max={1.333} step={0.01} />
 					</div>
 				</label>
 				<label>
-					<span>MAX ratio</span>
+					<Label>MAX ratio</Label>
 					<div>
-						<input type="number" bind:value={rMax} step="0.001" min="1.05" max="1.5" />
-						<input type="range" bind:value={rMax} min="1.05" max="1.5" step="0.01" class="flex-1" />
+						<Input type="number" bind:value={rMax} step="0.001" min="1.05" max="1.5" />
+						<Slider type="single" bind:value={rMax} min={1.05} max={1.5} step={0.01} />
 					</div>
 				</label>
 				<label>
-					<span>vi lower</span>
+					<Label>vi lower</Label>
 					<div>
-						<input type="number" bind:value={viMin} step="0.01" min="0" max={viMax} />
-						<input type="range" bind:value={viMin} min="0" max={viMax} step="0.01" class="flex-1" />
+						<Input type="number" bind:value={viMin} step="0.01" min="0" max={viMax} />
+						<Slider type="single" bind:value={viMin} min={0} max={viMax} step={0.01} />
 					</div>
 				</label>
 				<label>
-					<span>vi upper</span>
+					<Label>vi upper</Label>
 					<div>
-						<input type="number" bind:value={viMax} step="0.01" min={viMin} max="30" />
-						<input
-							type="range"
-							bind:value={viMax}
-							min={viMin}
-							max="30"
-							step="0.01"
-							class="flex-1"
-						/>
-					</div>
-				</label>
-				<label>
-					<span>Decimals</span>
-					<div>
-						<input type="number" bind:value={precision} min="0" max="6" step="1" />
-						<input type="range" bind:value={precision} min="0" max="6" step="1" class="flex-1" />
+						<Input type="number" bind:value={viMax} step="0.01" min={viMin} max="30" />
+						<Slider type="single" bind:value={viMax} min={viMin} max={30} step={0.01} />
 					</div>
 				</label>
 			</div>
 
 			<!-- actions line -->
-			<div class="mt-4 flex flex-wrap gap-2">
-				<button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</button>
-				<button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</button>
-				<button onclick={() => downloadJSON(fontSizeMap)}>Download JSON</button>
-				<button onclick={() => downloadTailwindJS(fontSizeMap)}>Download JS</button>
-				<button class="ml-auto border-red-500 text-red-600" onclick={resetParams}>
+			<div class="mt-8 flex flex-wrap gap-2">
+				<Button variant="secondary" onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>
+				<Button variant="secondary" onclick={() => copyTailwindSnippet(fontSizeMap)}>
+					Copy Tailwind snippet
+				</Button>
+				<Button variant="secondary" onclick={() => downloadJSON(fontSizeMap)}>Download JSON</Button>
+				<Button variant="secondary" onclick={() => downloadTailwindJS(fontSizeMap)}>
+					Download JS
+				</Button>
+				<Button variant="destructive" class="ml-auto " onclick={resetParams}>
 					Reset parameters
-				</button>
+				</Button>
 			</div>
-		</div>
-	</details>
-
-	<!-- Presets -->
-	<details open>
-		<summary class="flex items-center justify-between px-4 py-3">
-			<h2 class="text-xl font-semibold">Presets</h2>
-			<span class="chev text-neutral-500"></span>
-		</summary>
-		<div class="px-4 pb-4">
-			<div class="flex flex-wrap items-center gap-2">
-				<div class="text-sm text-neutral-600">Add/remove sizes. Labels & steps are automatic.</div>
-				<div class="ml-auto flex gap-2">
-					<button onclick={() => (presets = addSmallerPreset(presets))}> Add smaller </button>
-					<button onclick={() => (presets = addLargerPreset(presets))}> Add larger </button>
-				</div>
-			</div>
-
-			<div class="mt-3 overflow-x-auto">
-				<table class="w-full border-collapse">
-					<thead>
-						<tr class="border-b border-neutral-200">
-							<th>Label</th>
-							<th>MIN (px)</th>
-							<th>MAX (px)</th>
-							<th>clamp()</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each presets as p (p.label)}
-							{@const L = line(p.step, params)}
-							<tr class="border-b border-neutral-100">
-								<td>
-									<span class="badge">
-										{p.label}
-									</span>
-								</td>
-								<td class="tabular-nums">{fmt(L.min, precision)}</td>
-								<td class="tabular-nums">{fmt(L.max, precision)}</td>
-								<td class="overflow-x-auto font-mono text-sm whitespace-nowrap">
-									{clampString(p.step, params)}
-								</td>
-								<td>
-									{#if p.label !== 'base'}
-										<button onclick={() => (presets = removePreset(presets, p.label))}>
-											Remove
-										</button>
-									{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</details>
+		</Accordion.Content>
+	</Accordion.Item>
 
 	<!-- Preview -->
-	<details open>
-		<summary class="flex items-center justify-between px-4 py-3">
-			<h2 class="text-xl font-semibold">Preview</h2>
-			<span class="chev text-neutral-500"></span>
-		</summary>
-		<div class="px-4 pb-4">
-			<div class="grid grid-cols-1 items-center gap-2 sm:grid-cols-[auto,1fr]">
-				<label class="text-sm text-neutral-700" for="previewText">Preview text</label>
-				<input
+	<Accordion.Item value="preview">
+		<Accordion.Trigger>Preview</Accordion.Trigger>
+		<Accordion.Content>
+			<div class="mb-6 flex w-full flex-col gap-1.5">
+				<Label for="previewText">Preview text</Label>
+				<Input
 					type="text"
 					bind:value={previewText}
-					class="rounded-lg border border-neutral-300 px-2.5 py-2"
 					placeholder="Type preview text…"
-					name="previewText"
+					class="w-full"
 				/>
 			</div>
 
@@ -225,7 +154,7 @@
 					<li>
 						<div class="grid grid-cols-[auto_1fr] items-baseline gap-3">
 							<div class="w-[5ch]">
-								<span class="badge">{p.label}</span>
+								<Badge variant="secondary">{p.label}</Badge>
 							</div>
 							<div class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden whitespace-nowrap">
 								<p
@@ -238,57 +167,75 @@
 					</li>
 				{/each}
 			</ul>
-		</div>
-	</details>
-</div>
+		</Accordion.Content>
+	</Accordion.Item>
+
+	<!-- Presets -->
+	<Accordion.Item value="presets">
+		<Accordion.Trigger>Presets</Accordion.Trigger>
+		<Accordion.Content>
+			<div class="flex flex-wrap items-center gap-2">
+				<div class="text-sm text-card-foreground">
+					Add/remove sizes. Labels & steps are automatic.
+				</div>
+				<div class="ml-auto flex gap-2">
+					<Button variant="secondary" onclick={() => (presets = addSmallerPreset(presets))}>
+						Add smaller
+					</Button>
+					<Button variant="secondary" onclick={() => (presets = addLargerPreset(presets))}>
+						Add larger
+					</Button>
+				</div>
+			</div>
+
+			<Table.Root class="mt-3 overflow-x-auto">
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-[100px]">Label</Table.Head>
+						<Table.Head>Min size (px)</Table.Head>
+						<Table.Head>Max size (px)</Table.Head>
+						<Table.Head>Clamp value</Table.Head>
+						<Table.Head></Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each presets as p (p.label)}
+						{@const L = line(p.step, params)}
+						<Table.Row>
+							<Table.Cell class="font-medium">
+								<Badge variant="secondary">{p.label}</Badge>
+							</Table.Cell>
+							<Table.Cell>{fmt(L.min, precision)}</Table.Cell>
+							<Table.Cell>{fmt(L.max, precision)}</Table.Cell>
+							<Table.Cell>{clampString(p.step, params)}</Table.Cell>
+							<Table.Cell class="text-right">
+								{#if p.label !== 'base'}
+									<Button
+										variant="secondary"
+										class="ms-auto"
+										size="sm"
+										onclick={() => (presets = removePreset(presets, p.label))}
+									>
+										Remove
+									</Button>
+								{/if}
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Accordion.Content>
+	</Accordion.Item>
+</Accordion.Root>
 
 <style lang="postcss">
-	@reference "tailwindcss";
-
-	/* minimal CSS to enhance <details> (accordion) */
-	details {
-		@apply rounded-2xl border border-neutral-200 bg-white;
-	}
-	summary {
-		@apply cursor-pointer list-none select-none;
-
-		&::-webkit-details-marker {
-			@apply hidden;
-		}
-
-		.chev::after {
-			@apply ml-2 inline-block transition-transform duration-150 ease-in-out content-['▸'];
-		}
-	}
-
-	details[open] .chev::after {
-		@apply rotate-90;
-	}
-
-	button {
-		@apply cursor-pointer rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2;
-	}
+	@reference "./../app.css";
 
 	label {
-		@apply grid gap-1 text-sm text-neutral-700;
+		@apply grid gap-1 text-sm text-card-foreground;
 
 		& > div {
-			@apply flex items-center gap-2;
-
-			& > input[type='number'] {
-				@apply w-28 rounded-lg border border-neutral-300 px-2.5 py-2;
-			}
+			@apply flex gap-6;
 		}
-	}
-
-	thead th {
-		@apply px-2 py-2 text-left font-semibold text-neutral-700;
-	}
-	tbody td {
-		@apply px-2 py-2;
-	}
-
-	span.badge {
-		@apply rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs;
 	}
 </style>
