@@ -36,9 +36,9 @@
 	];
 </script>
 
-<Sidebar.Root variant="floating">
+<Sidebar.Root>
 	<Sidebar.Content>
-		<Sidebar.Trigger class="m-2 ms-auto" />
+		<Sidebar.Trigger class="m-2 ms-auto mb-0" />
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>

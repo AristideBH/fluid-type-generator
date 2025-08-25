@@ -19,6 +19,14 @@ fontSize: ${JSON.stringify(map, null, 2)},`;
     copyText(body);
 }
 
+export function copyCSSClasses(map: FontSizeMap) {
+    let classes = `/* Font size classes (generated) */\n`;
+    for (const [label, size] of Object.entries(map)) {
+        classes += `.text-${label} { font-size: ${size}; }\n`;
+    }
+    copyText(classes);
+}
+
 // ---- Download functions ----
 function download(filename: string, content: string, type = 'application/json') {
     const blob = new Blob([content], { type });

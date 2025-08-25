@@ -2,7 +2,13 @@
 	import { DEFAULTS, type Preset } from '@/presets';
 	import { line, fmt, clampString, type ScaleParams } from '@/mathHelpers';
 	import { addLargerPreset, addSmallerPreset, removePreset } from '@/stepsLabelsMgmt';
-	import { copyJSON, copyTailwindSnippet, downloadJSON, downloadTailwindJS } from '@/exporters';
+	import {
+		copyCSSClasses,
+		copyJSON,
+		copyTailwindSnippet,
+		downloadJSON,
+		downloadTailwindJS
+	} from '@/exporters';
 
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -12,7 +18,7 @@
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 
-	let previewText = $state('The quick brown fox jumps over the lazy dog');
+	let previewText = $state('Portez ce vieux whiskey au jeune juge blond qui fume ');
 
 	let viMin = $state(DEFAULTS.viMin);
 	let viMax = $state(DEFAULTS.viMax);
@@ -67,7 +73,7 @@
 	});
 </script>
 
-<Accordion.Root type="multiple" value={['parameters', 'presets']} class="grid gap-4">
+<Accordion.Root type="multiple" value={['parameters', 'preview']} class="grid gap-4">
 	<!-- Fluid Type Scale -->
 	<Accordion.Item value="parameters">
 		<Accordion.Trigger>Fluid Type Scale</Accordion.Trigger>
@@ -120,53 +126,19 @@
 
 			<!-- actions line -->
 			<div class="mt-8 flex flex-wrap gap-2">
+				<Button variant="secondary" onclick={() => copyCSSClasses(fontSizeMap)}>Copy CSS</Button>
 				<Button variant="secondary" onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>
 				<Button variant="secondary" onclick={() => copyTailwindSnippet(fontSizeMap)}>
 					Copy Tailwind snippet
 				</Button>
-				<Button variant="secondary" onclick={() => downloadJSON(fontSizeMap)}>Download JSON</Button>
+				<!-- <Button variant="secondary" onclick={() => downloadJSON(fontSizeMap)}>Download JSON</Button>
 				<Button variant="secondary" onclick={() => downloadTailwindJS(fontSizeMap)}>
 					Download JS
-				</Button>
+				</Button> -->
 				<Button variant="destructive" class="ml-auto " onclick={resetParams}>
 					Reset parameters
 				</Button>
 			</div>
-		</Accordion.Content>
-	</Accordion.Item>
-
-	<!-- Preview -->
-	<Accordion.Item value="preview">
-		<Accordion.Trigger>Preview</Accordion.Trigger>
-		<Accordion.Content>
-			<div class="mb-6 flex w-full flex-col gap-1.5">
-				<Label for="previewText">Preview text</Label>
-				<Input
-					type="text"
-					bind:value={previewText}
-					placeholder="Type preview text…"
-					class="w-full"
-				/>
-			</div>
-
-			<ul class="mt-3 grid grid-cols-1 gap-3">
-				{#each presets as p (p.label)}
-					<li>
-						<div class="grid grid-cols-[auto_1fr] items-baseline gap-3">
-							<div class="w-[5ch]">
-								<Badge variant="secondary">{p.label}</Badge>
-							</div>
-							<div class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden whitespace-nowrap">
-								<p
-									style={`font-size: ${clampString(p.step, params)}; line-height:1.5; font-weight:600;`}
-								>
-									{previewText}
-								</p>
-							</div>
-						</div>
-					</li>
-				{/each}
-			</ul>
 		</Accordion.Content>
 	</Accordion.Item>
 
@@ -224,6 +196,40 @@
 					{/each}
 				</Table.Body>
 			</Table.Root>
+		</Accordion.Content>
+	</Accordion.Item>
+	<!-- Preview -->
+	<Accordion.Item value="preview">
+		<Accordion.Trigger>Preview</Accordion.Trigger>
+		<Accordion.Content>
+			<div class="mb-6 flex w-full flex-col gap-1.5">
+				<Label for="previewText">Preview text</Label>
+				<Input
+					type="text"
+					bind:value={previewText}
+					placeholder="Type preview text…"
+					class="w-full"
+				/>
+			</div>
+
+			<ul class="mt-3 grid grid-cols-1 gap-3">
+				{#each presets as p (p.label)}
+					<li>
+						<div class="grid grid-cols-[auto_1fr] items-baseline gap-3">
+							<div class="w-[5ch]">
+								<Badge variant="secondary">{p.label}</Badge>
+							</div>
+							<div class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden whitespace-nowrap">
+								<p
+									style={`font-size: ${clampString(p.step, params)}; line-height:1.5; font-weight:600;`}
+								>
+									{previewText}
+								</p>
+							</div>
+						</div>
+					</li>
+				{/each}
+			</ul>
 		</Accordion.Content>
 	</Accordion.Item>
 </Accordion.Root>
