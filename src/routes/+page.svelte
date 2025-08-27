@@ -1,75 +1,55 @@
 <script lang="ts">
 	import { copyCSSClasses, copyJSON, copyTailwindSnippet, copyText } from '@/exporters';
 	import { clampString, fmt, line, type ScaleParams } from '@/mathHelpers';
-	import { DEFAULTS, type Preset } from '@/presets';
+	import { DEFAULTS, DEFAULTS_PRESETS, systemFonts, type Preset } from '@/presets';
 	import { addLargerPreset, addSmallerPreset, removePreset } from '@/stepsLabelsMgmt';
 
+	import { syncScroll } from '@/utils';
+	import { toast } from 'svelte-sonner';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
-	import { syncScroll } from '@/utils';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 
 	let previewText = $state('A mad boxer shot a quick, gloved jab to the jaw of his dizzy opponent');
 
-	let viMin = $state(DEFAULTS.viMin);
-	let viMax = $state(DEFAULTS.viMax);
-	let baseMin = $state(DEFAULTS.baseMin);
-	let baseMax = $state(DEFAULTS.baseMax);
-	let rMin = $state(DEFAULTS.rMin);
-	let rMax = $state(DEFAULTS.rMax);
-	let precision = $state(DEFAULTS.precision);
-
-	const params: ScaleParams = $derived({
-		viMin,
-		viMax,
-		baseMin,
-		baseMax,
-		rMin,
-		rMax,
-		precision
+	let params = $state<ScaleParams>({
+		viMin: DEFAULTS.viMin,
+		viMax: DEFAULTS.viMax,
+		baseMin: DEFAULTS.baseMin,
+		baseMax: DEFAULTS.baseMax,
+		rMin: DEFAULTS.rMin,
+		rMax: DEFAULTS.rMax,
+		precision: DEFAULTS.precision
 	});
 
-	let presets = $state<Preset[]>([
-		{ label: '2xs', step: -3 },
-		{ label: 'xs', step: -2 },
-		{ label: 'sm', step: -1 },
-		{ label: 'base', step: 0 },
-		{ label: 'md', step: 1 },
-		{ label: 'lg', step: 2 },
-		{ label: 'xl', step: 3 },
-		{ label: '2xl', step: 4 },
-		{ label: '3xl', step: 5 },
-		{ label: '4xl', step: 6 },
-		{ label: '5xl', step: 7 }
-	]);
+	let presets = $state<Preset[]>(DEFAULTS_PRESETS);
 
 	const fontSizeMap = $derived(
 		Object.fromEntries(presets.map((p) => [p.label, clampString(p.step, params)]))
 	);
 
 	function resetParams() {
-		viMin = DEFAULTS.viMin;
-		viMax = DEFAULTS.viMax;
-		baseMin = DEFAULTS.baseMin;
-		baseMax = DEFAULTS.baseMax;
-		rMin = DEFAULTS.rMin;
-		rMax = DEFAULTS.rMax;
-		precision = DEFAULTS.precision;
+		toast.success('Parameters reset to default values');
+		params = { ...DEFAULTS };
 	}
 
 	let scrollDivs: HTMLDivElement[] = [];
 	let areDetailsShown = $state(false);
+	let fontWeight = $state(500);
+	let selectedFont = $state(systemFonts[0].value);
 
 	$effect(() => {
-		if (viMin > viMax) viMin = viMax;
-		if (baseMin > baseMax) baseMax = baseMin < baseMax ? baseMax : baseMin;
-		if (baseMin > baseMax) baseMin = baseMax;
+		if (params.viMin > params.viMax) params.viMin = params.viMax;
+		if (params.baseMin > params.baseMax)
+			params.baseMax = params.baseMin < params.baseMax ? params.baseMax : params.baseMin;
+		if (params.baseMin > params.baseMax) params.baseMin = params.baseMax;
 	});
 </script>
 
@@ -86,49 +66,67 @@
 		<Accordion.Trigger>Settings</Accordion.Trigger>
 		<Accordion.Content>
 			<!-- controls with number + range -->
-			<div class="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
-				<label>
+			<div class="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
+				<fieldset>
 					<Label>Base MIN (px)</Label>
 					<div>
-						<Input type="number" bind:value={baseMin} step="0.01" min="8" max="48" />
-						<Slider type="single" bind:value={baseMin} min={8} max={48} step={0.1} />
+						<Input type="number" bind:value={params.baseMin} step="0.01" min="8" max="48" />
+						<Slider type="single" bind:value={params.baseMin} min={8} max={48} step={0.1} />
 					</div>
-				</label>
-				<label>
+				</fieldset>
+				<fieldset>
 					<Label>Base MAX (px)</Label>
 					<div>
-						<Input type="number" bind:value={baseMax} step="0.01" min="12" max="64" />
-						<Slider type="single" bind:value={baseMax} min={12} max={64} step={0.1} />
+						<Input type="number" bind:value={params.baseMax} step="0.01" min="12" max="64" />
+						<Slider type="single" bind:value={params.baseMax} min={12} max={64} step={0.1} />
 					</div>
-				</label>
-				<label>
+				</fieldset>
+				<fieldset>
 					<Label>MIN ratio</Label>
 					<div>
-						<Input type="number" bind:value={rMin} step="0.001" min="1.05" max="1.333" />
-						<Slider type="single" bind:value={rMin} min={1.05} max={1.333} step={0.01} />
+						<Input type="number" bind:value={params.rMin} step="0.001" min="1.05" max="1.333" />
+						<Slider type="single" bind:value={params.rMin} min={1.05} max={1.333} step={0.01} />
 					</div>
-				</label>
-				<label>
+				</fieldset>
+				<fieldset>
 					<Label>MAX ratio</Label>
 					<div>
-						<Input type="number" bind:value={rMax} step="0.001" min="1.05" max="1.5" />
-						<Slider type="single" bind:value={rMax} min={1.05} max={1.5} step={0.01} />
+						<Input type="number" bind:value={params.rMax} step="0.001" min="1.05" max="1.5" />
+						<Slider type="single" bind:value={params.rMax} min={1.05} max={1.5} step={0.01} />
 					</div>
-				</label>
-				<label>
+				</fieldset>
+				<fieldset>
 					<Label>vi lower</Label>
 					<div>
-						<Input type="number" bind:value={viMin} step="0.01" min="0" max={viMax} />
-						<Slider type="single" bind:value={viMin} min={0} max={viMax} step={0.01} />
+						<Input type="number" bind:value={params.viMin} step="0.01" min="0" max={params.viMax} />
+						<Slider
+							type="single"
+							bind:value={params.viMin}
+							min={0}
+							max={params.viMax}
+							step={0.01}
+						/>
 					</div>
-				</label>
-				<label>
+				</fieldset>
+				<fieldset>
 					<Label>vi upper</Label>
 					<div>
-						<Input type="number" bind:value={viMax} step="0.01" min={viMin} max="30" />
-						<Slider type="single" bind:value={viMax} min={viMin} max={30} step={0.01} />
+						<Input
+							type="number"
+							bind:value={params.viMax}
+							step="0.01"
+							min={params.viMin}
+							max="30"
+						/>
+						<Slider
+							type="single"
+							bind:value={params.viMax}
+							min={params.viMin}
+							max={30}
+							step={0.01}
+						/>
 					</div>
-				</label>
+				</fieldset>
 			</div>
 
 			<!-- actions line -->
@@ -147,51 +145,75 @@
 	<Accordion.Item value="preview">
 		<Accordion.Trigger>Preview</Accordion.Trigger>
 		<Accordion.Content>
-			<div class="flex items-start gap-4">
-				<div class="flex w-full flex-col gap-2">
-					<Label for="previewText">Preview text</Label>
-					<Input
-						type="text"
-						bind:value={previewText}
-						placeholder="Type preview text…"
-						class="w-full"
-						id="previewText"
-					/>
-					<div class="mt-3 flex items-center gap-3">
-						<Checkbox id="showSizeDetails" bind:checked={areDetailsShown} />
-						<Label for="showSizeDetails">Show sizes details</Label>
+			<div class="flex flex-col items-start gap-4 md:flex-row">
+				<div class="flex w-full flex-col gap-4 rounded-lg border border-dashed p-4">
+					<div class="flex flex-col gap-4 sm:flex-row md:items-start">
+						<div class="flex flex-col gap-2">
+							<Label>Font family</Label>
+							<Select.Root type="single" bind:value={selectedFont}>
+								<Select.Trigger class="w-xs bg-background">{selectedFont}</Select.Trigger>
+								<Select.Content>
+									{#each systemFonts as font}
+										<Select.Item value={font.value}>{font.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
+						<div class="flex grow flex-col gap-2">
+							<Label>Font weight</Label>
+							<div class="flex gap-4">
+								<Input bind:value={fontWeight} disabled />
+								<Slider type="single" bind:value={fontWeight} min={100} max={900} step={100} />
+							</div>
+						</div>
+					</div>
+					<div class="flex flex-col gap-2">
+						<Label for="previewText">Preview text</Label>
+						<Input
+							type="text"
+							bind:value={previewText}
+							placeholder="Type preview text…"
+							class="w-full"
+							id="previewText"
+						/>
 					</div>
 				</div>
-				<div class="flex flex-col gap-2">
+				<div class="flex min-w-xs flex-col gap-2">
 					<Label>Manage presets</Label>
-					<div class="ml-auto flex gap-2">
-						<Button variant="secondary" onclick={() => (presets = addSmallerPreset(presets))}>
+					<div class="flex gap-2 md:flex-col">
+						<Button class="w-fit" onclick={() => (presets = addSmallerPreset(presets))}>
 							Add smaller
 						</Button>
-						<Button variant="secondary" onclick={() => (presets = addLargerPreset(presets))}>
+						<Button class="w-fit" onclick={() => (presets = addLargerPreset(presets))}>
 							Add larger
 						</Button>
+					</div>
+					<div class="mt-2 flex gap-2">
+						<Switch id="showSizeDetails" bind:checked={areDetailsShown} />
+						<Label for="showSizeDetails">Show details</Label>
 					</div>
 				</div>
 			</div>
 
-			<ul class="ms-0 mt-6 grid list-none gap-y-2 {!areDetailsShown ? 'gap-y-5' : ''}">
+			<ul class="ms-0 mt-6 grid list-none gap-y-0 {areDetailsShown ? 'gap-y-2' : ''}">
 				{#each presets as preset, index}
 					{@const { label, step } = preset}
 					{@const fontSize = clampString(step, params)}
 					{@const L = line(step, params)}
 					<li
-						class="group relative rounded-xl border-dashed transition-all
-							{areDetailsShown ? ' border  p-2' : 'border-transparent'}"
+						class="group relative rounded-xl border-dashed transition-all hover:bg-muted
+							{areDetailsShown
+							? ' border p-2'
+							: 'rounded-t-none rounded-b-none border-b py-2 first:rounded-t-xl last:rounded-b-xl last:border-b-0 '}"
 					>
 						<div
 							class="grid items-baseline gap-3
 								{!areDetailsShown ? 'grid auto-cols-[auto_1fr] grid-flow-col' : ''}"
 						>
-							{#if label !== 'base'}
+							{#if label !== 'base' && label !== 'xs' && label !== 'sm' && label !== 'md' && label !== 'lg' && label !== 'xl'}
 								<Button
 									variant="secondary"
-									class="absolute top-2 right-2 hidden size-7 group-hover:flex"
+									class="absolute top-2 right-2 z-50 hidden size-7 group-hover:flex"
 									size="icon"
 									onclick={() => (presets = removePreset(presets, label))}
 									title="Remove {label} preset"
@@ -201,16 +223,20 @@
 							{/if}
 							<div
 								class="relative inline-flex items-end gap-3 transition-all
-									{!areDetailsShown ? 'w-[6ch]' : ''} "
+									{!areDetailsShown ? 'w-[7ch] ps-2' : ''} "
 							>
-								<Badge variant="secondary">{label}</Badge>
+								<Badge
+									variant={label === 'base' ? 'default' : 'secondary'}
+									class="border-bg font-mono">{label}</Badge
+								>
 								{#if areDetailsShown}
 									<p class="font-mono text-xs text-muted-foreground/50">
-										<span>min : {fmt(L.min, precision)}px</span> |
-										<span>max : {fmt(L.max, precision)}px</span> |
+										<span>min : {fmt(L.min, params.precision)}px</span> |
+										<span>max : {fmt(L.max, params.precision)}px</span> |
 										<button
 											onclick={() => copyText(clampString(step, params))}
 											class="cursor-copy select-all hover:text-foreground"
+											title="Copy css proprety"
 										>
 											{clampString(step, params)}
 										</button>
@@ -226,6 +252,8 @@
 								<div
 									class="py-[0.1em] font-semibold"
 									style="text-box-edge: cap alphabetic; text-box-trim: trim-both; font-size:inherit;"
+									style:font-weight={fontWeight}
+									style:font-family={selectedFont}
 								>
 									{previewText}
 								</div>
@@ -241,7 +269,7 @@
 <style lang="postcss">
 	@reference "./../app.css";
 
-	label {
+	fieldset {
 		@apply grid gap-2 text-sm text-card-foreground;
 
 		& > div {
