@@ -1,15 +1,6 @@
 // presets.ts
 export type Preset = { label: string; step: number };
 
-export const DEFAULTS = {
-    viMin: 3.2,
-    viMax: 12,
-    baseMin: 16,
-    baseMax: 19,
-    rMin: 1.125,
-    rMax: 1.25,
-    precision: 2,
-};
 
 export const DEFAULTS_PRESETS: Preset[] = [
     { label: '2xs', step: -3 },
@@ -24,7 +15,6 @@ export const DEFAULTS_PRESETS: Preset[] = [
     { label: '4xl', step: 6 },
     { label: '5xl', step: 7 }
 ]
-
 
 export const systemFonts = [
     { label: 'System Default', value: 'system-ui' },
