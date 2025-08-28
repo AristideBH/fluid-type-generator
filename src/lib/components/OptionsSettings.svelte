@@ -7,7 +7,7 @@
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 
 	type Props = {
-		options: import('@/options.svelte').Options;
+		options: import('@/logic.svelte').ScalingOptions;
 		fontSizeMap: Record<string, string>;
 	};
 

@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { systemFonts } from '@/defaults';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
-	import { systemFonts } from '@/options.svelte';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 
 	type Props = {
 		settings: App.PreviewSettings;
-		presets: import('@/presets.svelte').Presets;
+		presets: import('@/logic.svelte').SizePresets;
 	};
 	let { settings, presets }: Props = $props();
 </script>
@@ -52,7 +53,7 @@
 		<div class="flex gap-2 md:flex-col">
 			<Button class="w-fit" onclick={() => presets.addSmaller()}>Add smaller</Button>
 			<Button class="w-fit" onclick={() => presets.addLarger()}>Add larger</Button>
-			<Button class="w-fit" onclick={() => presets.reset()}>Reset</Button>
+			<Button class="w-fit" onclick={() => presets.reset()}><RotateCcw />Reset</Button>
 		</div>
 		<div class="mt-2 flex gap-2">
 			<Switch id="showSizeDetails" bind:checked={settings.showDetails} />

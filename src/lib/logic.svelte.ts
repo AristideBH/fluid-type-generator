@@ -1,23 +1,10 @@
+import { toast } from "svelte-sonner"
 import { SvelteSet } from "svelte/reactivity";
+import { DEFAULTS_OPTIONS, DEFAULTS_PRESETS, DEFAULTS_PREVIEW_PARAMS } from "./defaults";
 
 type BumpFn = (label: string) => string;
 
-export const DEFAULTS_PRESETS: App.Preset[] = [
-    { label: '2xs', step: -3 },
-    { label: 'xs', step: -2 },
-    { label: 'sm', step: -1 },
-    { label: 'base', step: 0 },
-    { label: 'md', step: 1 },
-    { label: 'lg', step: 2 },
-    { label: 'xl', step: 3 },
-    { label: '2xl', step: 4 },
-    { label: '3xl', step: 5 },
-    { label: '4xl', step: 6 },
-    { label: '5xl', step: 7 }
-]
-
-
-export class Presets {
+export class SizePresets {
     all = $state<App.Preset[]>(DEFAULTS_PRESETS);
 
     private bumpXL(label: string): string {
@@ -83,5 +70,67 @@ export class Presets {
         this.all = DEFAULTS_PRESETS;
     }
 
+}
 
+export class ScalingOptions {
+    #options = $state<App.OptionsMap>(DEFAULTS_OPTIONS);
+
+    get baseMin() { return this.#options.baseMin }
+    set baseMin(opt) { this.#options.baseMin.value = opt.value }
+
+    get baseMax() { return this.#options.baseMax }
+    set baseMax(opt) { this.#options.baseMax.value = opt.value }
+
+    get viMin() { return this.#options.viMin }
+    set viMin(opt) { this.#options.viMin.value = opt.value }
+
+    get viMax() { return this.#options.viMax }
+    set viMax(opt) { this.#options.viMax.value = opt.value }
+
+    get rMin() { return this.#options.rMin }
+    set rMin(opt) { this.#options.rMin.value = opt.value }
+
+    get rMax() { return this.#options.rMax }
+    set rMax(opt) { this.#options.rMax.value = opt.value }
+
+    get precision() { return this.#options.precision }
+    set precision(opt) { this.#options.precision.value = opt.value }
+
+    get all() { return this.#options }
+    set all(opts) { this.#options = opts }
+
+    constructor() {
+        $effect(() => {
+            if (this.#options.viMin.value > this.#options.viMax.value) {
+                this.#options.viMin.value = this.#options.viMax.value
+            }
+            if (this.#options.baseMin.value > this.#options.baseMax.value) {
+                this.#options.baseMax.value = this.#options.baseMin.value
+            }
+            if (this.#options.baseMin.value > this.#options.baseMax.value) {
+                this.#options.baseMin.value = this.#options.baseMax.value
+            }
+        })
+    }
+
+    reset() {
+        toast.success('Options reset to defaults')
+        this.all = DEFAULTS_OPTIONS
+    }
+
+    toObject(): App.OptionsMap {
+        return { ...this.#options };
+    }
+}
+
+export class PreviewSettings {
+    all = $state(DEFAULTS_PREVIEW_PARAMS)
+    text = $derived(this.all.text)
+    showDetails = $derived(this.all.showDetails)
+    fontWeight = $derived(this.all.fontWeight)
+    fontFamily = $derived(this.all.fontFamily)
+
+    toObject(): App.PreviewSettings {
+        return { ...this.all };
+    }
 }

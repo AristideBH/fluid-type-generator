@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { clampString } from '@/mathHelpers';
-	import { Presets } from '@/presets.svelte';
-	import { Options, PreviewSettings } from '@/options.svelte';
+	import { clampString } from '@/utils';
+	import { ScalingOptions, PreviewSettings, SizePresets } from '@/logic.svelte';
 
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import PreviewsFontSize from '@/components/PreviewsFontSize.svelte';
 	import OptionsSettings from '@/components/OptionsSettings.svelte';
 	import PreviewsSettings from '@/components/PreviewsSettings.svelte';
 
-	let presets = new Presets();
-	let options = new Options();
+	let presets = new SizePresets();
+	let options = new ScalingOptions();
 	let settings = new PreviewSettings();
 	let fontSizeMap = $derived<App.FontSizeMap>(
 		Object.fromEntries(presets.all.map((p) => [p.label, clampString(p.step, options.toObject())]))
@@ -34,7 +33,7 @@
 		<Accordion.Trigger>Preview</Accordion.Trigger>
 		<Accordion.Content>
 			<PreviewsSettings settings={settings.all} {presets} />
-			<PreviewsFontSize presets={presets.all} options={options.all} {settings} />
+			<PreviewsFontSize presets={presets.all} options={options.all} settings={settings.all} />
 		</Accordion.Content>
 	</Accordion.Item>
 </Accordion.Root>
