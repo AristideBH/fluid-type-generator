@@ -1,13 +1,3 @@
-export type ScaleParams = {
-    viMin: number;
-    viMax: number;
-    baseMin: number;
-    baseMax: number;
-    rMin: number;
-    rMax: number;
-    precision: number;
-};
-
 /**
  * Calculates the minimum size for a given step in a scale.
  *
@@ -15,8 +5,8 @@ export type ScaleParams = {
  * @param p - The scale parameters, including `baseMin` (base minimum size) and `rMin` (minimum ratio).
  * @returns The calculated minimum size for the specified step.
  */
-export function sizeMin(step: number, p: ScaleParams) {
-    return p.baseMin * Math.pow(p.rMin, step);
+export function sizeMin(step: number, p: App.OptionsMap) {
+    return p.baseMin.value * Math.pow(p.rMin.value, step);
 }
 
 /**
@@ -28,8 +18,8 @@ export function sizeMin(step: number, p: ScaleParams) {
  *   - rMax: The ratio used for exponential scaling.
  * @returns The calculated maximum size for the given step.
  */
-export function sizeMax(step: number, p: ScaleParams) {
-    return p.baseMax * Math.pow(p.rMax, step);
+export function sizeMax(step: number, p: App.OptionsMap) {
+    return p.baseMax.value * Math.pow(p.rMax.value, step);
 }
 
 /**
@@ -47,11 +37,11 @@ export function sizeMax(step: number, p: ScaleParams) {
  *   - `m`: The slope of the linear equation.
  *   - `b`: The intercept of the linear equation.
  */
-export function line(step: number, p: ScaleParams) {
+export function line(step: number, p: App.OptionsMap) {
     const min = sizeMin(step, p);
     const max = sizeMax(step, p);
-    const m = (max - min) / (p.viMax - p.viMin);
-    const b = min - m * p.viMin;
+    const m = (max - min) / (p.viMax.value - p.viMin.value);
+    const b = min - m * p.viMin.value;
     return { min, max, m, b };
 }
 
@@ -77,9 +67,9 @@ export function fmt(n: number, precision: number) {
  * @param p - The scale parameters, including min, max, precision, and other properties required by the `line` function.
  * @returns A string representing a CSS `clamp()` expression for fluid sizing.
  */
-export function clampString(step: number, p: ScaleParams) {
+export function clampString(step: number, p: App.OptionsMap) {
     const { min, max, m, b } = line(step, p);
-    const mStr = Number(m.toFixed(Math.max(p.precision, 2)));
-    const bStr = Number(b.toFixed(p.precision));
-    return `clamp(${fmt(min, p.precision)}px, ${mStr}vi + ${bStr}px, ${fmt(max, p.precision)}px)`;
+    const mStr = Number(m.toFixed(Math.max(p.precision.value, 2)));
+    const bStr = Number(b.toFixed(p.precision.value));
+    return `clamp(${fmt(min, p.precision.value)}px, ${mStr}vi + ${bStr}px, ${fmt(max, p.precision.value)}px)`;
 }

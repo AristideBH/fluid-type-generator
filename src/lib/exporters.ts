@@ -1,5 +1,3 @@
-// exporters.ts
-export type FontSizeMap = { [label: string]: string };
 import { toast } from "svelte-sonner";
 
 // ---- Copy functions ----
@@ -8,18 +6,18 @@ export function copyText(text: string) {
     toast.success('Copied to clipboard');
 }
 
-export function copyJSON(map: FontSizeMap) {
+export function copyJSON(map: App.FontSizeMap) {
     copyText(JSON.stringify(map, null, 2));
 }
 
-export function copyTailwindSnippet(map: FontSizeMap) {
+export function copyTailwindSnippet(map: App.FontSizeMap) {
     const body = `// Tailwind config snippet
 // put this under theme.extend.fontSize
 fontSize: ${JSON.stringify(map, null, 2)},`;
     copyText(body);
 }
 
-export function copyCSSClasses(map: FontSizeMap) {
+export function copyCSSClasses(map: App.FontSizeMap) {
     let classes = `/* Font size classes (generated) */\n`;
     for (const [label, size] of Object.entries(map)) {
         classes += `.text-${label} { font-size: ${size}; }\n`;
@@ -37,11 +35,11 @@ function download(filename: string, content: string, type = 'application/json') 
     URL.revokeObjectURL(url);
 }
 
-export function downloadJSON(map: FontSizeMap) {
+export function downloadJSON(map: App.FontSizeMap) {
     download('fontSize.json', JSON.stringify(map, null, 2));
 }
 
-export function downloadTailwindJS(map: FontSizeMap) {
+export function downloadTailwindJS(map: App.FontSizeMap) {
     const js = `// font-size scale (generated)
 export const fontSize = ${JSON.stringify(map, null, 2)};`;
     download('fontSize.js', js, 'application/javascript');
