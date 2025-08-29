@@ -153,28 +153,59 @@ export class ScalingOptions {
 
 export class PreviewSettings {
     #persistedSettings = new PersistedState("preview-settings", DEFAULTS_PREVIEW_PARAMS);
-    #persistedCustomFonts = new PersistedState<Array<{ family: string; name: string }>>("custom-fonts", []);
+    #persistedCustomFonts = new PersistedState<Array<{
+        family: string;
+        name: string;
+        data?: string; // Base64 encoded font data
+    }>>("custom-fonts", []);
 
     all = $state(this.#persistedSettings.current)
     text = $derived(this.all.text)
     showDetails = $derived(this.all.showDetails)
     fontWeight = $derived(this.all.fontWeight)
     fontFamily = $derived(this.all.fontFamily)
-    customFonts = $state<Array<{ family: string; name: string }>>(this.#persistedCustomFonts.current)
+    customFonts = $state<Array<{ family: string; name: string }>>(
+        this.#persistedCustomFonts.current.map(({ family, name }) => ({ family, name }))
+    )
 
     constructor() {
         $effect(() => {
             this.#persistedSettings.current = this.all;
-            this.#persistedCustomFonts.current = this.customFonts;
         });
 
-        // Show restore notification if we loaded persisted data
+        // Restore custom fonts
+        Promise.all(this.#persistedCustomFonts.current.map(async (font) => {
+            if (font.data) {
+                try {
+                    // Convert base64 to array buffer
+                    const response = await fetch(font.data);
+                    const blob = await response.blob();
+                    const arrayBuffer = await blob.arrayBuffer();
+
+                    const fontFace = new FontFace(font.family, arrayBuffer);
+                    await fontFace.load();
+                    document.fonts.add(fontFace);
+                    return true;
+                } catch (error) {
+                    console.error('Failed to restore font:', font.name, error);
+                    return false;
+                }
+            }
+            return false;
+        })).then(results => {
+            // Remove any fonts that failed to load
+            this.#persistedCustomFonts.current = this.#persistedCustomFonts.current.filter((_, i) => results[i]);
+
+            if (results.some(success => success)) {
+                toast.success(`Restored ${results.filter(Boolean).length} custom font(s)`);
+            }
+        });        // Show restore notification if we loaded persisted data
         if (this.customFonts.length > 0 || JSON.stringify(this.all) !== JSON.stringify(DEFAULTS_PREVIEW_PARAMS)) {
             toast.success('Restored previous preview settings');
         }
     }
 
-    setCustomFont(font: { family: string; name: string }): boolean {
+    setCustomFont(font: { family: string; name: string; data?: string }): boolean {
         // Check if a font with the same name already exists
         const existingFont = this.customFonts.find(f => f.name.toLowerCase() === font.name.toLowerCase());
         if (existingFont) {
@@ -183,8 +214,14 @@ export class PreviewSettings {
             return false;
         }
 
-        // Add new font
-        this.customFonts = [...this.customFonts, font];
+        // Add new font to both state and persistence
+        this.customFonts = [...this.customFonts, { family: font.family, name: font.name }];
+        if (font.data) {
+            this.#persistedCustomFonts.current = [
+                ...this.#persistedCustomFonts.current,
+                { family: font.family, name: font.name, data: font.data }
+            ];
+        }
         this.all = { ...this.all, fontFamily: font.family };
         return true;
     }

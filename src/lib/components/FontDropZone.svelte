@@ -5,6 +5,7 @@
 	type CustomFont = {
 		family: string;
 		name: string;
+		data?: string;
 	};
 
 	type Props = {
@@ -27,16 +28,32 @@
 
 		const reader = new FileReader();
 		try {
+			// Get array buffer for immediate font loading
 			const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+				const reader = new FileReader();
 				reader.onload = () => resolve(reader.result as ArrayBuffer);
 				reader.onerror = () => reject(reader.error);
 				reader.readAsArrayBuffer(file);
 			});
 
+			// Get base64 for storage
+			const base64Data = await new Promise<string>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => resolve(reader.result as string);
+				reader.onerror = () => reject(reader.error);
+				reader.readAsDataURL(file);
+			});
+
+			// Create and load the font from array buffer
 			const fontFace = new FontFace(fontId, arrayBuffer);
 			const font = await fontFace.load();
 			document.fonts.add(font);
-			const isNewFont = onFontLoad({ family: font.family, name: fontName });
+
+			const isNewFont = onFontLoad({
+				family: fontId,
+				name: fontName,
+				data: base64Data
+			});
 
 			if (isNewFont) {
 				toast.success(`${fontName} loaded successfully!`);
