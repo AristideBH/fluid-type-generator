@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { clampString, fmt, line, syncScroll } from '@/utils';
+	import { clampString, fmt, line } from '@/utils';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
