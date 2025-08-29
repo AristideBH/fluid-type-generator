@@ -131,9 +131,19 @@ export class PreviewSettings {
     fontFamily = $derived(this.all.fontFamily)
     customFonts = $state<Array<{ family: string; name: string }>>([])
 
-    setCustomFont(font: { family: string; name: string }) {
+    setCustomFont(font: { family: string; name: string }): boolean {
+        // Check if a font with the same name already exists
+        const existingFont = this.customFonts.find(f => f.name.toLowerCase() === font.name.toLowerCase());
+        if (existingFont) {
+            // If it exists, just switch to it
+            this.all = { ...this.all, fontFamily: existingFont.family };
+            return false;
+        }
+
+        // Add new font
         this.customFonts = [...this.customFonts, font];
         this.all = { ...this.all, fontFamily: font.family };
+        return true;
     }
 
     toObject(): App.PreviewSettings {
