@@ -4,22 +4,49 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { copyText } from '@/exporters';
+	import { ScrollSync } from '@/scrollSync.svelte';
 
 	type Props = {
-		options: App.OptionsMap;
-		presets: App.Preset[];
-		settings: App.PreviewSettings;
+		options: import('@/logic.svelte').ScalingOptions;
+		presets: import('@/logic.svelte').SizePresets;
+		settings: import('@/logic.svelte').PreviewSettings;
 	};
 
 	let { options, presets, settings }: Props = $props();
+	const scrollSync = new ScrollSync();
 	let scrollDivs: HTMLDivElement[] = $state([]);
+	let activeScrollIndex = $state<number | null>(null);
+	let isSyncing = false; // Add a lock flag
+
+	$effect(() => {
+		if (activeScrollIndex === null) return;
+		const source = scrollDivs[activeScrollIndex];
+		if (!source) return;
+		const percent =
+			source.scrollWidth > source.clientWidth
+				? source.scrollLeft / (source.scrollWidth - source.clientWidth)
+				: 0;
+		isSyncing = true; // Lock scroll events
+		scrollDivs.forEach((el, i) => {
+			if (i !== activeScrollIndex && el) {
+				const maxScroll = el.scrollWidth - el.clientWidth;
+				el.scrollLeft = percent * maxScroll;
+			}
+		});
+		// Unlock after the frame
+		requestAnimationFrame(() => {
+			isSyncing = false;
+		});
+	});
 </script>
 
+<pre>{JSON.stringify(activeScrollIndex, null, 2)}</pre>
+
 <ul class="ms-0 mt-6 grid list-none gap-y-0 {settings.showDetails ? 'gap-y-2' : ''}">
-	{#each presets as preset, index}
+	{#each presets.all as preset, index}
 		{@const { label, step } = preset}
-		{@const fontSize = clampString(step, options)}
-		{@const L = line(step, options)}
+		{@const fontSize = clampString(step, options.all)}
+		{@const L = line(step, options.all)}
 		<li
 			class="group relative rounded-xl border-dashed transition-all hover:bg-muted
 			{settings.showDetails
@@ -36,27 +63,31 @@
 						class="absolute top-2 right-2 z-50 hidden size-7 group-hover:flex"
 						size="icon"
 						title="Remove {label} preset"
+						onclick={() => presets}
 					>
 						<Trash2 class="cursor-pointer" />
 					</Button>
 				{/if}
 				<div
-					class="relative inline-flex items-end gap-3 transition-all
+					class=" relative inline-flex max-w-full min-w-0 items-end gap-3 overflow-x-auto whitespace-nowrap transition-all
 						{!settings.showDetails ? 'w-[7ch] ps-2' : ''} "
 				>
-					<Badge variant={label === 'base' ? 'default' : 'secondary'} class="border-bg font-mono">
+					<Badge
+						variant={label === 'base' ? 'default' : 'secondary'}
+						class="border-bg sticky left-0 font-mono"
+					>
 						{label}
 					</Badge>
 					{#if settings.showDetails}
-						<p class="font-mono text-xs text-muted-foreground/50">
+						<p class="leading-tighttext-muted-foreground/50 font-mono text-xs">
 							<span>min : {fmt(L.min, options.precision.value)}px</span> |
 							<span>max : {fmt(L.max, options.precision.value)}px</span> |
 							<button
-								onclick={() => copyText(clampString(step, options))}
+								onclick={() => copyText(clampString(step, options.all))}
 								class="cursor-copy select-all hover:text-foreground"
 								title="Copy css proprety"
 							>
-								{clampString(step, options)}
+								{clampString(step, options.all)}
 							</button>
 						</p>
 					{/if}
@@ -64,8 +95,12 @@
 				<div
 					class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-[0.2em] whitespace-nowrap"
 					style:font-size={fontSize}
-					bind:this={scrollDivs[index]}
-					onscroll={() => syncScroll(index, scrollDivs)}
+					bind:this={
+						el) => {
+							scrollSync.scrollDivs[index] = el;
+						}
+					}
+					onscroll={() => scrollSync.onScroll(index)}
 				>
 					<div
 						class="py-[0.1em] font-semibold"

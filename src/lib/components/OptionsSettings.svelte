@@ -15,7 +15,10 @@
 	let config = $derived(
 		Object.values(options.all).map((opt) => ({
 			label: opt.label,
-			name: opt.name
+			name: opt.name,
+			step: opt.step,
+			min: opt.min,
+			max: opt.max
 		}))
 	);
 </script>

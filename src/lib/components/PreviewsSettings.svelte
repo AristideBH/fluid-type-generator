@@ -9,7 +9,7 @@
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 
 	type Props = {
-		settings: App.PreviewSettings;
+		settings: import('@/logic.svelte').PreviewSettings;
 		presets: import('@/logic.svelte').SizePresets;
 	};
 	let { settings, presets }: Props = $props();
