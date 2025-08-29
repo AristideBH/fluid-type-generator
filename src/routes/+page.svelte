@@ -22,7 +22,7 @@
 	</p>
 </section>
 
-<Accordion.Root type="multiple" value={['preview']} class="grid gap-4">
+<Accordion.Root type="multiple" value={['settings', 'preview']} class="grid gap-4">
 	<Accordion.Item value="settings" class="sticky top-4 z-10">
 		<Accordion.Trigger>Settings</Accordion.Trigger>
 		<Accordion.Content>

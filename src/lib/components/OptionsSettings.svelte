@@ -23,27 +23,29 @@
 	);
 </script>
 
-<div class="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-6">
 	{#each config as option}
-		<fieldset class="grid gap-2 text-sm text-card-foreground">
-			<Label>{option.label}</Label>
-			<div class="flex gap-4">
-				<Input
-					type="number"
-					bind:value={options.all[option.name].value}
-					step={options.all[option.name].step}
-					min={options.all[option.name].min}
-					max={options.all[option.name].max}
-				/>
-				<Slider
-					type="single"
-					bind:value={options.all[option.name].value}
-					step={options.all[option.name].step}
-					min={options.all[option.name].min}
-					max={options.all[option.name].max}
-				/>
-			</div>
-		</fieldset>
+		{#if option.name !== 'precision'}
+			<fieldset class="grid gap-2 text-sm text-card-foreground">
+				<Label>{option.label}</Label>
+				<div class="flex gap-4">
+					<Input
+						type="number"
+						bind:value={options.all[option.name].value}
+						step={options.all[option.name].step}
+						min={options.all[option.name].min}
+						max={options.all[option.name].max}
+					/>
+					<Slider
+						type="single"
+						bind:value={options.all[option.name].value}
+						step={options.all[option.name].step}
+						min={options.all[option.name].min}
+						max={options.all[option.name].max}
+					/>
+				</div>
+			</fieldset>
+		{/if}
 	{/each}
 </div>
 
