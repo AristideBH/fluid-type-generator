@@ -1,11 +1,19 @@
 import { toast } from "svelte-sonner"
 import { SvelteSet } from "svelte/reactivity";
 import { DEFAULTS_OPTIONS, DEFAULTS_PRESETS, DEFAULTS_PREVIEW_PARAMS } from "./defaults";
+import { PersistedState } from "runed";
 
 type BumpFn = (label: string) => string;
 
 export class SizePresets {
-    all = $state<App.Preset[]>(DEFAULTS_PRESETS);
+    #persistedPresets = new PersistedState("size-presets", DEFAULTS_PRESETS);
+    all = $state<App.Preset[]>(this.#persistedPresets.current);
+
+    constructor() {
+        $effect(() => {
+            this.#persistedPresets.current = this.all;
+        });
+    }
 
     private bumpXL(label: string): string {
         if (label === 'xl') return '2xl';
@@ -68,12 +76,40 @@ export class SizePresets {
 
     reset() {
         this.all = DEFAULTS_PRESETS;
+        this.#persistedPresets.current = DEFAULTS_PRESETS;
+        toast.success('Presets reset to defaults');
     }
 
 }
 
 export class ScalingOptions {
-    #options = $state<App.OptionsMap>(DEFAULTS_OPTIONS);
+    #persistedOptions = new PersistedState("scaling-options", DEFAULTS_OPTIONS);
+    #options = $state<App.OptionsMap>(this.#persistedOptions.current);
+
+    constructor() {
+        $effect(() => {
+            // Persist changes
+            this.#persistedOptions.current = this.#options;
+        });
+
+        $effect(() => {
+            // Validation effects
+            if (this.#options.viMin.value > this.#options.viMax.value) {
+                this.#options.viMin.value = this.#options.viMax.value
+            }
+            if (this.#options.baseMin.value > this.#options.baseMax.value) {
+                this.#options.baseMax.value = this.#options.baseMin.value
+            }
+            if (this.#options.baseMin.value > this.#options.baseMax.value) {
+                this.#options.baseMin.value = this.#options.baseMax.value
+            }
+        });
+
+        // Show restore notification if we loaded persisted data
+        if (JSON.stringify(this.#persistedOptions.current) !== JSON.stringify(DEFAULTS_OPTIONS)) {
+            toast.success('Restored previous scaling options');
+        }
+    }
 
     get baseMin() { return this.#options.baseMin }
     set baseMin(opt) { this.#options.baseMin.value = opt.value }
@@ -99,23 +135,10 @@ export class ScalingOptions {
     get all() { return this.#options }
     set all(opts) { this.#options = opts }
 
-    constructor() {
-        $effect(() => {
-            if (this.#options.viMin.value > this.#options.viMax.value) {
-                this.#options.viMin.value = this.#options.viMax.value
-            }
-            if (this.#options.baseMin.value > this.#options.baseMax.value) {
-                this.#options.baseMax.value = this.#options.baseMin.value
-            }
-            if (this.#options.baseMin.value > this.#options.baseMax.value) {
-                this.#options.baseMin.value = this.#options.baseMax.value
-            }
-        })
-    }
-
     reset() {
-        toast.success('Options reset to defaults')
-        this.all = DEFAULTS_OPTIONS
+        this.all = DEFAULTS_OPTIONS;
+        this.#persistedOptions.current = DEFAULTS_OPTIONS;
+        toast.success('Options reset to defaults');
     }
 
     toObject(): App.OptionsMap {
@@ -124,12 +147,27 @@ export class ScalingOptions {
 }
 
 export class PreviewSettings {
-    all = $state(DEFAULTS_PREVIEW_PARAMS)
+    #persistedSettings = new PersistedState("preview-settings", DEFAULTS_PREVIEW_PARAMS);
+    #persistedCustomFonts = new PersistedState<Array<{ family: string; name: string }>>("custom-fonts", []);
+
+    all = $state(this.#persistedSettings.current)
     text = $derived(this.all.text)
     showDetails = $derived(this.all.showDetails)
     fontWeight = $derived(this.all.fontWeight)
     fontFamily = $derived(this.all.fontFamily)
-    customFonts = $state<Array<{ family: string; name: string }>>([])
+    customFonts = $state<Array<{ family: string; name: string }>>(this.#persistedCustomFonts.current)
+
+    constructor() {
+        $effect(() => {
+            this.#persistedSettings.current = this.all;
+            this.#persistedCustomFonts.current = this.customFonts;
+        });
+
+        // Show restore notification if we loaded persisted data
+        if (this.customFonts.length > 0 || JSON.stringify(this.all) !== JSON.stringify(DEFAULTS_PREVIEW_PARAMS)) {
+            toast.success('Restored previous preview settings');
+        }
+    }
 
     setCustomFont(font: { family: string; name: string }): boolean {
         // Check if a font with the same name already exists
