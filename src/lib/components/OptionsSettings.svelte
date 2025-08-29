@@ -5,6 +5,7 @@
 	import { copyCSSClasses, copyJSON, copyTailwindSnippet } from '@/exporters';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 
 	type Props = {
 		options: import('@/logic.svelte').ScalingOptions;
@@ -70,7 +71,64 @@
 		<RotateCcw />
 		Reset options
 	</Button>
-	<Button onclick={() => copyCSSClasses(fontSizeMap)}>Copy CSS</Button>
-	<Button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>
-	<Button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy Tailwind snippet</Button>
+
+	<Dialog.Root>
+		<Dialog.Trigger>
+			<Button>View CSS</Button>
+		</Dialog.Trigger>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>CSS Classes</Dialog.Title>
+				<Dialog.Description>
+					Here are the generated CSS classes for your fluid type scale:
+				</Dialog.Description>
+			</Dialog.Header>
+			<pre class="mt-4 overflow-x-auto rounded-md bg-muted p-4"><code
+					>{Object.entries(fontSizeMap)
+						.map(([label, size]) => `.text-${label} { font-size: ${size}; }`)
+						.join('\n')}</code
+				></pre>
+			<Dialog.Footer>
+				<Button onclick={() => copyCSSClasses(fontSizeMap)}>Copy to clipboard</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<Dialog.Root>
+		<Dialog.Trigger>
+			<Button>View JSON</Button>
+		</Dialog.Trigger>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>JSON Output</Dialog.Title>
+				<Dialog.Description>Your fluid type scale in JSON format:</Dialog.Description>
+			</Dialog.Header>
+			<pre class="mt-4 overflow-x-auto rounded-md bg-muted p-4"><code
+					>{JSON.stringify(fontSizeMap, null, 2)}</code
+				></pre>
+			<Dialog.Footer>
+				<Button onclick={() => copyJSON(fontSizeMap)}>Copy to clipboard</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<Dialog.Root>
+		<Dialog.Trigger>
+			<Button>View Tailwind</Button>
+		</Dialog.Trigger>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>Tailwind Config</Dialog.Title>
+				<Dialog.Description>Configuration snippet for your Tailwind CSS config:</Dialog.Description>
+			</Dialog.Header>
+			<pre class="mt-4 overflow-x-auto rounded-md bg-muted p-4"><code
+					>// Tailwind config snippet
+// put this under theme.extend.fontSize
+fontSize: {JSON.stringify(fontSizeMap, null, 2)},</code
+				></pre>
+			<Dialog.Footer>
+				<Button onclick={() => copyTailwindSnippet(fontSizeMap)}>Copy to clipboard</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
 </div>

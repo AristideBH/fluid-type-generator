@@ -16,9 +16,30 @@
 	let dragActive = $state(false);
 	let fileInput: HTMLInputElement;
 
+	const MAX_FONT_SIZE = 3 * 1024 * 1024; // 5MB
+	const MAX_FONT_SIZE_MB = MAX_FONT_SIZE / (1024 * 1024); // Convert to MB
+	const ALLOWED_FONT_TYPES = /\.(ttf|otf|woff|woff2)$/i;
+	const SAFE_FILENAME_REGEX = /^[a-zA-Z0-9\-_ ]+$/;
+
 	async function loadFontFile(file: File) {
-		if (!file.type.startsWith('font/') && !file.name.match(/\.(ttf|otf|woff|woff2)$/i)) {
+		// Validate file type
+		if (!file.type.startsWith('font/') && !file.name.match(ALLOWED_FONT_TYPES)) {
 			toast.error('Please select a valid font file (TTF, OTF, WOFF, WOFF2)');
+			return;
+		}
+
+		// Validate file size
+		if (file.size > MAX_FONT_SIZE) {
+			toast.error('Font file too large (max 5MB)');
+			return;
+		}
+
+		// Validate filename for safety
+		const rawName = file.name.replace(ALLOWED_FONT_TYPES, '');
+		if (!SAFE_FILENAME_REGEX.test(rawName)) {
+			toast.error(
+				'Invalid font file name. Use only letters, numbers, spaces, hyphens and underscores.'
+			);
 			return;
 		}
 
@@ -128,5 +149,6 @@
 	<div class="text-center">
 		<p class="text-sm text-muted-foreground">Drop a font file here or click to browse</p>
 		<p class="mt-0 text-xs text-muted-foreground/75">(TTF, OTF, WOFF, WOFF2)</p>
+		<p class="mt-0.5 text-xs text-muted-foreground/75">Max size: {MAX_FONT_SIZE_MB}MB</p>
 	</div>
 </div>

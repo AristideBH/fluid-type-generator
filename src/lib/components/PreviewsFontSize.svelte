@@ -78,6 +78,7 @@
 						style="text-box-edge: cap alphabetic; text-box-trim: trim-both; font-size:inherit;"
 						style:font-weight={settings.fontWeight}
 						style:font-family={settings.fontFamily}
+						style:font-style={settings.isItalic ? 'italic' : 'normal'}
 					>
 						{settings.text}
 					</div>

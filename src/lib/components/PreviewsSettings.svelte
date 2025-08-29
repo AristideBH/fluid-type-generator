@@ -94,9 +94,15 @@
 			<Button class="w-fit" onclick={() => presets.addLarger()}>Add larger</Button>
 			<Button class="w-fit" onclick={() => presets.reset()}><RotateCcw />Reset presets</Button>
 		</div>
-		<div class="mt-2 flex gap-2">
-			<Switch id="showSizeDetails" bind:checked={settings.showDetails} />
-			<Label for="showSizeDetails">Show details</Label>
+		<div class="mt-2 flex flex-col gap-2">
+			<div class="flex gap-2">
+				<Switch id="showSizeDetails" bind:checked={settings.showDetails} />
+				<Label for="showSizeDetails">Show details</Label>
+			</div>
+			<div class="flex gap-2">
+				<Switch id="italicText" bind:checked={settings.isItalic} />
+				<Label for="italicText">Italic text</Label>
+			</div>
 		</div>
 	</div>
 </div>

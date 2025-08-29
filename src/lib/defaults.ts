@@ -38,5 +38,6 @@ export const DEFAULTS_PREVIEW_PARAMS: App.PreviewSettings = {
     text: "A mad boxer shot a quick, gloved jab to the jaw of his dizzy opponent",
     showDetails: false,
     fontWeight: 500,
-    fontFamily: systemFonts[0].value
+    fontFamily: systemFonts[0].value,
+    isItalic: false
 }

@@ -40,6 +40,7 @@ declare global {
 			showDetails: boolean;
 			fontWeight: number;
 			fontFamily: string;
+			isItalic: boolean;
 		}
 	}
 }

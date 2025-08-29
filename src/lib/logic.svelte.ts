@@ -94,11 +94,9 @@ export class ScalingOptions {
 
     constructor() {
         $effect(() => {
-            // Persist changes
             this.#persistedOptions.current = this.#options;
         });
 
-        // Show restore notification if we loaded persisted data
         if (JSON.stringify(this.#persistedOptions.current) !== JSON.stringify(DEFAULTS_OPTIONS)) {
             toast.success('Restored previous scaling options');
         }
@@ -159,16 +157,56 @@ export class PreviewSettings {
         data?: string; // Base64 encoded font data
     }>>("custom-fonts", []);
 
+    private validateSettings(settings: unknown): settings is App.PreviewSettings {
+        if (typeof settings !== 'object' || !settings) return false;
+        const s = settings as App.PreviewSettings;
+
+        return typeof s.text === 'string'
+            && typeof s.showDetails === 'boolean'
+            && typeof s.fontWeight === 'number'
+            && s.fontWeight >= 100 && s.fontWeight <= 900
+            && typeof s.fontFamily === 'string'
+            && typeof s.isItalic === 'boolean';
+    }
+
+    private validateCustomFont(font: unknown): font is { family: string; name: string; data?: string } {
+        if (typeof font !== 'object' || !font) return false;
+        const f = font as { family?: unknown; name?: unknown; data?: unknown };
+
+        const validFamily = typeof f.family === 'string' && f.family.length > 0;
+        const validName = typeof f.name === 'string' && f.name.length > 0;
+        const validData = !f.data || (typeof f.data === 'string' && f.data.startsWith('data:'));
+
+        return validFamily && validName && validData;
+    }
+
     all = $state(this.#persistedSettings.current)
     text = $derived(this.all.text)
     showDetails = $derived(this.all.showDetails)
     fontWeight = $derived(this.all.fontWeight)
     fontFamily = $derived(this.all.fontFamily)
+    isItalic = $derived(this.all.isItalic)
     customFonts = $state<Array<{ family: string; name: string }>>(
         this.#persistedCustomFonts.current.map(({ family, name }) => ({ family, name }))
     )
 
+    private cleanupUnusedFonts() {
+        document.fonts.forEach(font => {
+            if (font.family.startsWith('custom-') && !this.customFonts.some(f => f.family === font.family)) {
+                document.fonts.delete(font);
+            }
+        });
+    }
+
     constructor() {
+        // Initialize with default values for any missing properties
+        const currentSettings = this.#persistedSettings.current;
+        const initialSettings = this.validateSettings(currentSettings)
+            ? { ...DEFAULTS_PREVIEW_PARAMS, ...currentSettings }
+            : { ...DEFAULTS_PREVIEW_PARAMS };
+        this.#persistedSettings.current = initialSettings;
+        this.all = initialSettings;
+
         $effect(() => {
             this.#persistedSettings.current = this.all;
         });
@@ -193,7 +231,6 @@ export class PreviewSettings {
             }
             return false;
         })).then(results => {
-            // Remove any fonts that failed to load
             this.#persistedCustomFonts.current = this.#persistedCustomFonts.current.filter((_, i) => results[i]);
 
             if (results.some(success => success)) {
@@ -206,11 +243,23 @@ export class PreviewSettings {
     }
 
     setCustomFont(font: { family: string; name: string; data?: string }): boolean {
+        // Validate font data
+        if (!this.validateCustomFont(font)) {
+            toast.error('Invalid font data');
+            return false;
+        }
+
         // Check if a font with the same name already exists
         const existingFont = this.customFonts.find(f => f.name.toLowerCase() === font.name.toLowerCase());
         if (existingFont) {
             // If it exists, just switch to it
             this.all = { ...this.all, fontFamily: existingFont.family };
+            return false;
+        }
+
+        // Enforce maximum number of custom fonts (prevent memory/storage abuse)
+        if (this.customFonts.length >= 20) {
+            toast.error('Maximum number of custom fonts reached (20). Please remove some before adding more.');
             return false;
         }
 
@@ -248,5 +297,22 @@ export class PreviewSettings {
 
     toObject(): App.PreviewSettings {
         return { ...this.all };
+    }
+
+    cleanupStorage(): void {
+        // Remove invalid entries from persistent storage
+        this.#persistedCustomFonts.current = this.#persistedCustomFonts.current
+            .filter(font => this.validateCustomFont(font));
+
+        // Cleanup unused fonts from document.fonts
+        this.cleanupUnusedFonts();
+
+        // Clear any corrupted settings
+        if (!this.validateSettings(this.#persistedSettings.current)) {
+            this.#persistedSettings.current = DEFAULTS_PREVIEW_PARAMS;
+        }
+
+        // Notify user
+        toast.success('Storage cleaned up successfully');
     }
 }
