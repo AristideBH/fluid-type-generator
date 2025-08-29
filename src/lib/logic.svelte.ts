@@ -129,6 +129,12 @@ export class PreviewSettings {
     showDetails = $derived(this.all.showDetails)
     fontWeight = $derived(this.all.fontWeight)
     fontFamily = $derived(this.all.fontFamily)
+    customFonts = $state<Array<{ family: string; name: string }>>([])
+
+    setCustomFont(font: { family: string; name: string }) {
+        this.customFonts = [...this.customFonts, font];
+        this.all = { ...this.all, fontFamily: font.family };
+    }
 
     toObject(): App.PreviewSettings {
         return { ...this.all };

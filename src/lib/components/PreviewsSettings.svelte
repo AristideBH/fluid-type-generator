@@ -7,6 +7,8 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import Upload from '@lucide/svelte/icons/upload';
+	import FontDropZone from './FontDropZone.svelte';
 
 	type Props = {
 		settings: import('@/logic.svelte').PreviewSettings;
@@ -20,14 +22,38 @@
 		<div class="flex flex-col gap-4 sm:flex-row md:items-start">
 			<div class="flex flex-col gap-2">
 				<Label>Font family</Label>
-				<Select.Root type="single" bind:value={settings.fontFamily}>
-					<Select.Trigger class="w-xs bg-background">{settings.fontFamily}</Select.Trigger>
-					<Select.Content>
-						{#each systemFonts as font}
-							<Select.Item value={font.value}>{font.label}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+				<div class="flex flex-col gap-2">
+					<Select.Root type="single" bind:value={settings.fontFamily}>
+						<Select.Trigger class="w-xs bg-background">
+							{settings.customFonts.find((f) => f.family === settings.fontFamily)?.name ??
+								systemFonts.find((f) => f.value === settings.fontFamily)?.label ??
+								settings.fontFamily}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.GroupHeading>System Fonts</Select.GroupHeading>
+								{#each systemFonts as font}
+									<Select.Item value={font.value}>{font.label}</Select.Item>
+								{/each}
+							</Select.Group>
+							{#if settings.customFonts.length > 0}
+								<Select.Separator />
+								<Select.Group>
+									<Select.GroupHeading>Custom Fonts</Select.GroupHeading>
+									{#each settings.customFonts as font}
+										<Select.Item value={font.family}>
+											<div class="flex items-center gap-2">
+												<Upload class="size-4" />
+												{font.name}
+											</div>
+										</Select.Item>
+									{/each}
+								</Select.Group>
+							{/if}
+						</Select.Content>
+					</Select.Root>
+					<FontDropZone onFontLoad={(font) => settings.setCustomFont(font)} />
+				</div>
 			</div>
 			<div class="flex grow flex-col gap-2">
 				<Label>Font weight</Label>
