@@ -17,8 +17,6 @@
 	const scrollSync = new ScrollSync(scrollDivs);
 </script>
 
-<pre>{JSON.stringify(scrollSync.activeScrollIndex, null, 2)}</pre>
-
 <ul class="ms-0 mt-6 grid list-none gap-y-0 {settings.showDetails ? 'gap-y-2' : ''}">
 	{#each presets.all as preset, index}
 		{@const { label, step } = preset}
