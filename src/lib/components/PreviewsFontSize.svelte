@@ -13,34 +13,11 @@
 	};
 
 	let { options, presets, settings }: Props = $props();
-	const scrollSync = new ScrollSync();
-	let scrollDivs: HTMLDivElement[] = $state([]);
-	let activeScrollIndex = $state<number | null>(null);
-	let isSyncing = false; // Add a lock flag
-
-	$effect(() => {
-		if (activeScrollIndex === null) return;
-		const source = scrollDivs[activeScrollIndex];
-		if (!source) return;
-		const percent =
-			source.scrollWidth > source.clientWidth
-				? source.scrollLeft / (source.scrollWidth - source.clientWidth)
-				: 0;
-		isSyncing = true; // Lock scroll events
-		scrollDivs.forEach((el, i) => {
-			if (i !== activeScrollIndex && el) {
-				const maxScroll = el.scrollWidth - el.clientWidth;
-				el.scrollLeft = percent * maxScroll;
-			}
-		});
-		// Unlock after the frame
-		requestAnimationFrame(() => {
-			isSyncing = false;
-		});
-	});
+	let scrollDivs = $state<HTMLDivElement[]>([]);
+	const scrollSync = new ScrollSync(scrollDivs);
 </script>
 
-<pre>{JSON.stringify(activeScrollIndex, null, 2)}</pre>
+<pre>{JSON.stringify(scrollSync.activeScrollIndex, null, 2)}</pre>
 
 <ul class="ms-0 mt-6 grid list-none gap-y-0 {settings.showDetails ? 'gap-y-2' : ''}">
 	{#each presets.all as preset, index}
@@ -95,11 +72,7 @@
 				<div
 					class="max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-[0.2em] whitespace-nowrap"
 					style:font-size={fontSize}
-					bind:this={
-						el) => {
-							scrollSync.scrollDivs[index] = el;
-						}
-					}
+					bind:this={scrollDivs[index]}
 					onscroll={() => scrollSync.onScroll(index)}
 				>
 					<div

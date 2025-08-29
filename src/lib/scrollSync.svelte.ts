@@ -1,28 +1,34 @@
-// src/lib/scrollSync.svelte.ts
 
 export class ScrollSync {
-    scrollDivs = $state<HTMLDivElement[]>([]);
+    scrollDivs: HTMLDivElement[];
     activeScrollIndex = $state<number | null>(null);
     isSyncing = $state(false);
+    debounceTimer: number | null = null;
 
-    setDivs(divs: HTMLDivElement[]) {
-        this.scrollDivs = divs;
+    constructor(scrollDivs: HTMLDivElement[]) {
+        this.scrollDivs = scrollDivs;
     }
-
     onScroll(index: number) {
-        if (!this.isSyncing) {
-            this.activeScrollIndex = index;
-        }
+        if (this.isSyncing) return;
+        this.activeScrollIndex = index;
+
+        // Debounce syncing
+        if (this.debounceTimer) clearTimeout(this.debounceTimer);
+        this.debounceTimer = window.setTimeout(() => {
+            this.syncScroll();
+        }, 1); // 60ms debounce, adjust as needed
     }
 
-    $effect() {
+    syncScroll() {
         if (this.activeScrollIndex === null) return;
         const source = this.scrollDivs[this.activeScrollIndex];
         if (!source) return;
+
         const percent =
             source.scrollWidth > source.clientWidth
                 ? source.scrollLeft / (source.scrollWidth - source.clientWidth)
                 : 0;
+
         this.isSyncing = true;
         this.scrollDivs.forEach((el, i) => {
             if (i !== this.activeScrollIndex && el) {
@@ -30,8 +36,9 @@ export class ScrollSync {
                 el.scrollLeft = percent * maxScroll;
             }
         });
-        requestAnimationFrame(() => {
+        // Allow browser to finish scrolling before re-enabling
+        setTimeout(() => {
             this.isSyncing = false;
-        });
+        }, 1);
     }
 }
