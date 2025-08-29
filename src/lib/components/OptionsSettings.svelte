@@ -50,7 +50,7 @@
 <div class="mt-8 flex flex-wrap gap-2">
 	<Button variant="destructive" class="me-auto" onclick={() => options.reset()}>
 		<RotateCcw />
-		Reset
+		Reset options
 	</Button>
 	<Button onclick={() => copyCSSClasses(fontSizeMap)}>Copy CSS</Button>
 	<Button onclick={() => copyJSON(fontSizeMap)}>Copy JSON</Button>

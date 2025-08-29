@@ -53,7 +53,7 @@
 		<div class="flex gap-2 md:flex-col">
 			<Button class="w-fit" onclick={() => presets.addSmaller()}>Add smaller</Button>
 			<Button class="w-fit" onclick={() => presets.addLarger()}>Add larger</Button>
-			<Button class="w-fit" onclick={() => presets.reset()}><RotateCcw />Reset</Button>
+			<Button class="w-fit" onclick={() => presets.reset()}><RotateCcw />Reset presets</Button>
 		</div>
 		<div class="mt-2 flex gap-2">
 			<Switch id="showSizeDetails" bind:checked={settings.showDetails} />

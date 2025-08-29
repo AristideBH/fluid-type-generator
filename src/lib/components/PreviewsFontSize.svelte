@@ -38,7 +38,7 @@
 						class="absolute top-2 right-2 z-50 hidden size-7 group-hover:flex"
 						size="icon"
 						title="Remove {label} preset"
-						onclick={() => presets}
+						onclick={() => presets.remove(label)}
 					>
 						<Trash2 class="cursor-pointer" />
 					</Button>
