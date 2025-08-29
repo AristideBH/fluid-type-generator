@@ -18,7 +18,7 @@
 </script>
 
 <div class="flex flex-col items-start gap-4 md:flex-row">
-	<div class="flex w-full flex-col gap-4 rounded-lg border border-dashed p-4">
+	<div class="flex w-full flex-col gap-4">
 		<div class="flex flex-col gap-4 sm:flex-row md:items-start">
 			<div class="flex flex-col gap-2">
 				<Label>Font family</Label>

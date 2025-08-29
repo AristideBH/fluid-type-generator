@@ -12,13 +12,29 @@
 	};
 
 	let { options, fontSizeMap }: Props = $props();
+
+	// Get dynamic constraints for a field
+	const getDynamicConstraints = (option: { name: string }) => {
+		const constraints =
+			{
+				baseMin: { max: options.baseMinMax },
+				baseMax: { min: options.baseMaxMin },
+				viMin: { max: options.viMinMax },
+				viMax: { min: options.viMaxMin }
+			}[option.name] ?? {};
+
+		return {
+			min: constraints.min ?? options.all[option.name].min,
+			max: constraints.max ?? options.all[option.name].max
+		};
+	};
+
 	let config = $derived(
 		Object.values(options.all).map((opt) => ({
 			label: opt.label,
 			name: opt.name,
 			step: opt.step,
-			min: opt.min,
-			max: opt.max
+			...getDynamicConstraints({ name: opt.name })
 		}))
 	);
 </script>
@@ -33,15 +49,15 @@
 						type="number"
 						bind:value={options.all[option.name].value}
 						step={options.all[option.name].step}
-						min={options.all[option.name].min}
-						max={options.all[option.name].max}
+						min={option.min}
+						max={option.max}
 					/>
 					<Slider
 						type="single"
 						bind:value={options.all[option.name].value}
 						step={options.all[option.name].step}
-						min={options.all[option.name].min}
-						max={options.all[option.name].max}
+						min={option.min}
+						max={option.max}
 					/>
 				</div>
 			</fieldset>

@@ -86,23 +86,16 @@ export class ScalingOptions {
     #persistedOptions = new PersistedState("scaling-options", DEFAULTS_OPTIONS);
     #options = $state<App.OptionsMap>(this.#persistedOptions.current);
 
+    // Derived constraints
+    baseMinMax = $derived(this.#options.baseMax.value);
+    baseMaxMin = $derived(this.#options.baseMin.value);
+    viMinMax = $derived(this.#options.viMax.value);
+    viMaxMin = $derived(this.#options.viMin.value);
+
     constructor() {
         $effect(() => {
             // Persist changes
             this.#persistedOptions.current = this.#options;
-        });
-
-        $effect(() => {
-            // Validation effects
-            if (this.#options.viMin.value > this.#options.viMax.value) {
-                this.#options.viMin.value = this.#options.viMax.value
-            }
-            if (this.#options.baseMin.value > this.#options.baseMax.value) {
-                this.#options.baseMax.value = this.#options.baseMin.value
-            }
-            if (this.#options.baseMin.value > this.#options.baseMax.value) {
-                this.#options.baseMin.value = this.#options.baseMax.value
-            }
         });
 
         // Show restore notification if we loaded persisted data
@@ -112,16 +105,28 @@ export class ScalingOptions {
     }
 
     get baseMin() { return this.#options.baseMin }
-    set baseMin(opt) { this.#options.baseMin.value = opt.value }
+    set baseMin(opt) {
+        const newValue = Math.min(opt.value, this.baseMinMax);
+        this.#options.baseMin.value = newValue;
+    }
 
     get baseMax() { return this.#options.baseMax }
-    set baseMax(opt) { this.#options.baseMax.value = opt.value }
+    set baseMax(opt) {
+        const newValue = Math.max(opt.value, this.baseMaxMin);
+        this.#options.baseMax.value = newValue;
+    }
 
     get viMin() { return this.#options.viMin }
-    set viMin(opt) { this.#options.viMin.value = opt.value }
+    set viMin(opt) {
+        const newValue = Math.min(opt.value, this.viMinMax);
+        this.#options.viMin.value = newValue;
+    }
 
     get viMax() { return this.#options.viMax }
-    set viMax(opt) { this.#options.viMax.value = opt.value }
+    set viMax(opt) {
+        const newValue = Math.max(opt.value, this.viMaxMin);
+        this.#options.viMax.value = newValue;
+    }
 
     get rMin() { return this.#options.rMin }
     set rMin(opt) { this.#options.rMin.value = opt.value }
