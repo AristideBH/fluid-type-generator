@@ -226,6 +226,26 @@ export class PreviewSettings {
         return true;
     }
 
+    removeCustomFont(family: string) {
+        // Remove from customFonts state
+        this.customFonts = this.customFonts.filter(f => f.family !== family);
+
+        // Remove from persisted storage
+        this.#persistedCustomFonts.current = this.#persistedCustomFonts.current
+            .filter(f => f.family !== family);
+
+        // Always reset to system default font
+        this.all = { ...this.all, fontFamily: DEFAULTS_PREVIEW_PARAMS.fontFamily };
+
+        // Try to remove from document.fonts
+        const font = Array.from(document.fonts).find(f => f.family === family);
+        if (font) {
+            document.fonts.delete(font);
+        }
+
+        toast.success('Font removed and reset to system default');
+    }
+
     toObject(): App.PreviewSettings {
         return { ...this.all };
     }

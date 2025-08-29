@@ -8,6 +8,7 @@
 	import { Switch } from '$lib/components/ui/switch/index.js';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Upload from '@lucide/svelte/icons/upload';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import FontDropZone from './FontDropZone.svelte';
 
 	type Props = {
@@ -23,35 +24,47 @@
 			<div class="flex flex-col gap-2">
 				<Label>Font family</Label>
 				<div class="flex flex-col gap-2">
-					<Select.Root type="single" bind:value={settings.fontFamily}>
-						<Select.Trigger class="w-xs bg-background">
-							{settings.customFonts.find((f) => f.family === settings.fontFamily)?.name ??
-								systemFonts.find((f) => f.value === settings.fontFamily)?.label ??
-								settings.fontFamily}
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Group>
-								<Select.GroupHeading>System Fonts</Select.GroupHeading>
-								{#each systemFonts as font}
-									<Select.Item value={font.value}>{font.label}</Select.Item>
-								{/each}
-							</Select.Group>
-							{#if settings.customFonts.length > 0}
-								<Select.Separator />
+					<div class="flex items-start gap-1">
+						<Select.Root type="single" bind:value={settings.fontFamily}>
+							<Select.Trigger class="w-xs bg-background">
+								{settings.customFonts.find((f) => f.family === settings.fontFamily)?.name ??
+									systemFonts.find((f) => f.value === settings.fontFamily)?.label ??
+									settings.fontFamily}
+							</Select.Trigger>
+							<Select.Content>
 								<Select.Group>
-									<Select.GroupHeading>Custom Fonts</Select.GroupHeading>
-									{#each settings.customFonts as font}
-										<Select.Item value={font.family}>
-											<div class="flex items-center gap-2">
-												<Upload class="size-4" />
-												{font.name}
-											</div>
-										</Select.Item>
+									<Select.GroupHeading>System Fonts</Select.GroupHeading>
+									{#each systemFonts as font}
+										<Select.Item value={font.value}>{font.label}</Select.Item>
 									{/each}
 								</Select.Group>
-							{/if}
-						</Select.Content>
-					</Select.Root>
+								{#if settings.customFonts.length > 0}
+									<Select.Separator />
+									<Select.Group>
+										<Select.GroupHeading>Custom Fonts</Select.GroupHeading>
+										{#each settings.customFonts as font}
+											<Select.Item value={font.family}>
+												<div class="flex items-center gap-2">
+													<Upload class="size-4" />
+													{font.name}
+												</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
+								{/if}
+							</Select.Content>
+						</Select.Root>
+						{#if settings.customFonts.some((f) => f.family === settings.fontFamily)}
+							<Button
+								variant="outline"
+								size="icon"
+								onclick={() => settings.removeCustomFont(settings.fontFamily)}
+							>
+								<Trash2 class="size-4" />
+								<span class="sr-only">Remove font</span>
+							</Button>
+						{/if}
+					</div>
 					<FontDropZone onFontLoad={(font) => settings.setCustomFont(font)} />
 				</div>
 			</div>

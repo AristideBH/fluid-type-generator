@@ -26,7 +26,6 @@
 		const fontName = file.name.replace(/\.(ttf|otf|woff|woff2)$/i, '').replace(/[-_]/g, ' ');
 		const fontId = `custom-${fontName}-${Date.now()}`;
 
-		const reader = new FileReader();
 		try {
 			// Get array buffer for immediate font loading
 			const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
